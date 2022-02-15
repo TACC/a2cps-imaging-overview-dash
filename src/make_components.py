@@ -5,7 +5,7 @@ import math
 
 # Dash Framework
 import dash_bootstrap_components as dbc
-import dash_daq as daq
+# import dash_daq as daq #not currently installed on local
 from dash import Dash, callback, clientside_callback, html, dcc, dash_table, Input, Output, State, MATCH, ALL
 from dash.exceptions import PreventUpdate
 
