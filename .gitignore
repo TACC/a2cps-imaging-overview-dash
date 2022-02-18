@@ -1,5 +1,6 @@
 # Local files for development purposes
-data/
+# Ignore local data again once API turned on
+data/group_bold.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
