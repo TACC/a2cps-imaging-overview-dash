@@ -7,12 +7,6 @@ import dash_daq as daq
 from dash import Dash, callback, clientside_callback, html, dcc, dash_table, Input, Output, State, MATCH, ALL
 from dash.exceptions import PreventUpdate
 
-# import local modules
-from config_settings import *
-from data_processing import *
-from make_components import *
-from styling import *
-
 
 # ----------------------------------------------------------------------------
 # APP Settings
