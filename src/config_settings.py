@@ -38,5 +38,5 @@ def get_django_user():
 # CONFIG SETTINGS
 # ----------------------------------------------------------------------------
 DATA_PATH = pathlib.Path(__file__).parent.joinpath("data")
-ASSETS_PATH = pathlib.Path(__file__).parent.joinpath("assets")
+ASSETS_PATH = pathlib.Path(__file__).parent.joinpath("assets", "/assets")
 REQUESTS_PATHNAME_PREFIX = os.environ.get("REQUESTS_PATHNAME_PREFIX", "/")

@@ -3,7 +3,7 @@
 ---
 version: "3"
 services:
-  a2cps_weekly_dash:
+  a2cps_imaging_overview_dash:
     build: .
     ports:
       - 8050:8050
