@@ -30,21 +30,6 @@ app = Dash(__name__,
 # ----------------------------------------------------------------------------
 # DASH APP COMPONENT FUNCTIONS
 # ----------------------------------------------------------------------------
-def pie_scan(df, col):
-    fig = px.pie(df, values='count', names=col, title=col,
-         color_discrete_sequence=['SteelBlue','lightgrey']
-        )
-    fig.update_traces(textposition='inside', textinfo='percent+label')
-    fig.update_layout(showlegend=False)
-    return fig
-
-def build_pie_col(df, col):
-    figure_id = 'pie_' + col
-    pie_col = dbc.Col([
-        dcc.Graph(figure = pie_scan(df, col), id = figure_id)
-    ], width = 4)
-    return pie_col
-
 def create_image_overview(df):
     overview_div = html.Div([
         dbc.Row([dbc.Col([
@@ -53,7 +38,7 @@ def create_image_overview(df):
         dbc.Row([
             dbc.Col([
                 dt.DataTable(
-                    id='tbl', data=df.to_dict('records'),
+                    id='tbl-overview', data=df.to_dict('records'),
                     columns=[{"name": i, "id": i} for i in df.columns],
                     style_data_conditional=[
                         {
@@ -78,8 +63,8 @@ def create_image_overview(df):
     ])
     return overview_div
 
-def create_image_reports(completions):
-    image_reports_children = [
+def completions_table(completions):
+    completions_section = [
         dbc.Row([dbc.Col([
             html.H3('Overall completion of scans Y/N for each scan in acquisition order: T1, DWI, REST1, CUFF1, CUFF2, REST2)')
         ])]),
@@ -94,6 +79,12 @@ def create_image_reports(completions):
                 ),
             ])
         ]),
+    ]
+    return completions_section
+
+def create_pie_charts(completions):
+    pie_charts = [
+
         dbc.Row([dbc.Col([
             html.H3('Percent of returns by Scan type')
         ])]),
@@ -104,7 +95,7 @@ def create_image_reports(completions):
             build_pie_col(imaging, col) for col in icols[3:6]
         ]),
     ]
-    return image_reports_children
+    return pie_charts
 
 # build page parts
 filter_box = html.Div(
@@ -124,7 +115,14 @@ filter_box = html.Div(
     ]
 )
 
-
+stacked_bar_fig = px.bar(stacked_bar_df, x='ses', y='%',
+                 color=stacked_bar_df['rating'], barmode='stack',
+                  text=stacked_bar_df['count'],  # Add Percent Sign
+                 facet_col = 'site',
+                 color_discrete_map={'red':'FireBrick',
+                                     'yellow':'Gold',
+                                     'green':'ForestGreen',
+                                     'unavailable':'grey'})
 # ----------------------------------------------------------------------------
 # DASH APP LAYOUT FUNCTION
 # ----------------------------------------------------------------------------
@@ -147,60 +145,48 @@ def create_content():
                                     {'label': 'All Sites', 'value': ",".join(sites)},
                                     {'label': 'MCC1', 'value': 'UIC,UC,NS'},
                                     {'label': 'MCC2', 'value': 'UM, WS, NS' },
-                                    {'label': 'University of Illinois at Chicago', 'value': 'UIC' },
+                                    {'label': 'University of Illinois at Chicago', 'value': 'UI' },
                                     {'label': 'University of Chicago', 'value': 'UC' },
                                     {'label': 'NorthShore', 'value': 'NS' },
                                     {'label': 'University of Michigan', 'value': 'UM' },
                                     {'label': 'Wayne State University', 'value': 'WS' },
                                     {'label': 'Spectrum Health', 'value': 'NS' }
                                 ],
-                                value=",".join(sites)
+                                value = 'UI'
+                                # value=",".join(sites)
                             ),
                         ], width=2),
                             # dbc.Col([filter_box],width=2)]),
                 ], style={'border':'1px solid black'}),
 
-                create_image_overview(imaging_overview),
+                dcc.Tabs(id="tabs", value='tab-overview', children=[
+                    dcc.Tab(label='Overview', value='tab-overview',
+                        children =[
+                            create_image_overview(imaging_overview),
 
-
-                # dbc.Row([
-                #     dbc.Col([html.H2('Image Reports')], width=2),
-                #     dbc.Col([html.H5('for:')], width=1),
-                #     dbc.Col([
-                #         dcc.Dropdown(
-                #             id='dropdown-sites',
-                #             options=[
-                #                 {'label': 'All Sites', 'value': ",".join(sites)},
-                #                 {'label': 'MCC1', 'value': 'UIC,UC,NS'},
-                #                 {'label': 'MCC2', 'value': 'UM, WS, NS' },
-                #                 {'label': 'University of Illinois at Chicago', 'value': 'UIC' },
-                #                 {'label': 'University of Chicago', 'value': 'UC' },
-                #                 {'label': 'NorthShore', 'value': 'NS' },
-                #                 {'label': 'University of Michigan', 'value': 'UM' },
-                #                 {'label': 'Wayne State University', 'value': 'WS' },
-                #                 {'label': 'Spectrum Health', 'value': 'NS' }
-                #             ],
-                #             value=",".join(sites)
-                #         ),
-                #     ], width=2),
-                # ]),
-
-                dbc.Row([
-                    dbc.Col([
-                        html.Div(id='image_reports')  ,
-                    ],width=8),
-                    dbc.Col([
-                        dbc.Row([
+                            dcc.Graph(figure=stacked_bar_fig)
+                        ]
+                    ),
+                    dcc.Tab(label='Completions', value='tab-completions',
+                        children =[
+                            html.Div(id='completions_section'),
+                        ]
+                    ),
+                    dcc.Tab(label='Pie Charts', value='tab-pie',
+                        children =[
+                            html.Div(id='pie_charts')
+                        ]
+                    ),
+                    dcc.Tab(label='Heat Map', value='tab-heatmap',
+                        children =[
                             html.Div(id='heatmap')
-                        ])
-                    ],width=4),
+                        ]
+                    ),
                 ]),
-
-
             ]
-                    , style={'border':'1px solid black', 'padding':'10px'}
-                    )
-                ])
+            , style={'border':'1px solid black', 'padding':'10px'}
+            )
+        ])
     return content
 
 def serve_layout():
@@ -231,22 +217,41 @@ app.layout = serve_layout
 
 # Define callback to update graph
 @app.callback(
-    Output('image_reports', 'children'),
+    Output('completions_section', 'children'),
     [Input('dropdown-sites', 'value')]
 )
 def update_image_report(sites):
     df = imaging[imaging['site'].isin(sites.split(","))]
     completions = get_completions(df)
-    return create_image_reports(completions)
+    return completions_table(completions)
+
+@app.callback(
+    Output('pie_charts', 'children'),
+    [Input('dropdown-sites', 'value')]
+)
+def update_image_report(sites):
+    df = imaging[imaging['site'].isin(sites.split(","))]
+    completions = get_completions(df)
+    return create_pie_charts(completions)
 
 @app.callback(
     Output('heatmap', 'children'),
     [Input('dropdown-sites', 'value')]
 )
 def update_image_report(sites):
-    # f = generate_heat_matrix(get_heat_matrix_df(qc, sites), colors)
+    sites_list = sites.split(",")
+    if len(sites_list) ==1:
+        df  = get_heat_matrix_df(qc, sites, color_mapping_list)
+        fig_heatmap = generate_heat_matrix(df, color_mapping_list)
+        heatmap = html.Div([
+            dcc.Graph(id='graph_heatmap', figure=fig_heatmap)
+        ],style={'border':'1px solid blue'})
+    else:
+        heatmap = html.Div([
+            html.H4('Please select a single site from the dropdown above to see a Heatmap of Image Quality')
+        ], style={'padding': '50px', 'font-style': 'italic'})    # f = generate_heat_matrix(get_heat_matrix_df(qc, sites), colors)
     # heatmap = dcc.Graph(figure=f)
-    heatmap = html.Div(html.H3(sites))
+
     return heatmap
 
 
@@ -255,6 +260,6 @@ def update_image_report(sites):
 # ----------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=True, port=8030)
 else:
     server = app.server
