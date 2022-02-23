@@ -43,12 +43,12 @@ def generate_heat_matrix(df, colors):
     fig.update_layout(
         coloraxis_showscale=False,
         margin=dict(t=0, b=0, l=0, r=0),
-        # xaxis_nticks=cut + 1,
-        # yaxis_nticks=cut + 1,
+        xaxis_nticks=cut + 1,
+        yaxis_nticks=cut + 1,
         xaxis_side='top',
         xaxis_tickangle=-45
     ).update_xaxes(
-        automargin=True, visible=False
+        automargin=True, 
     ).update_yaxes(
         automargin=True,
     )
