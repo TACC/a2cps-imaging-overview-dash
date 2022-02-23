@@ -89,10 +89,10 @@ def create_pie_charts(completions):
             html.H3('Percent of returns by Scan type')
         ])]),
         dbc.Row([
-            build_pie_col(imaging, col) for col in icols[0:3]
+            build_pie_col(completions, col) for col in icols2[0:3]
         ])        ,
         dbc.Row([
-            build_pie_col(imaging, col) for col in icols[3:6]
+            build_pie_col(completions, col) for col in icols2[3:6]
         ]),
     ]
     return pie_charts
@@ -229,7 +229,7 @@ def update_image_report(sites):
     Output('pie_charts', 'children'),
     [Input('dropdown-sites', 'value')]
 )
-def update_image_report(sites):
+def update_pie(sites):
     df = imaging[imaging['site'].isin(sites.split(","))]
     completions = get_completions(df)
     return create_pie_charts(completions)
@@ -238,7 +238,7 @@ def update_image_report(sites):
     Output('heatmap', 'children'),
     [Input('dropdown-sites', 'value')]
 )
-def update_image_report(sites):
+def update_heatmap(sites):
     sites_list = sites.split(",")
     if len(sites_list) ==1:
         df  = get_heat_matrix_df(qc, sites, color_mapping_list)

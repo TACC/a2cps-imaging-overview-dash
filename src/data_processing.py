@@ -49,7 +49,6 @@ def get_heat_matrix_df(qc, site, color_mapping_list):
     q = qc[(qc.site == site)][qc_cols]
     if len(q) >0:
         q['sub'] = q['sub'].astype(str)
-        q = q.fillna('lightgreen')
         q2 = q.merge(color_mapping_df, how='left', left_on='rating', right_on='color')
         q3 = q2.sort_values(['sub','ses','scan']).drop_duplicates(['sub','ses','scan'],keep='last')
         q3['Scan'] = q3['ses'] + '-' + q3['scan']
@@ -78,14 +77,27 @@ def get_stacked_bar_data(df, id_col, metric_col, cat_cols, count_col = None):
 # ----------------------------------------------------------------------------
 # LOAD DATA
 # ----------------------------------------------------------------------------
-imaging_datafile = 'imaging_log.csv'
-imaging_data_filepath = os.path.join(DATA_PATH,imaging_datafile)
+data_repository = 'https://api.a2cps.org/files/v2/download/public/system/a2cps.storage.community/reports/imaging'
+def load_imaging():
+    try:
+        imaging = pd.read_csv('/'.join([data_repository,'imaging-log-latest.csv']))
+        imaging_source = 'url'
+    except:
+        imaging = pd.read_csv(os.path.join(DATA_PATH,'imaging_log.csv'))
+        imaging_source = 'local'
+    return imaging, imaging_source
 
-qc_datafile = 'qc_log.csv'
-qc_data_filepath = os.path.join(DATA_PATH,qc_datafile)
+def load_qc():
+    try:
+        qc = pd.read_csv('/'.join([data_repository,'qc-log-latest.csv']))
+        qc_source = 'url'
+    except:
+        qc = pd.read_csv(os.path.join(DATA_PATH,'qc_log.csv'))
+        qc_source = 'local'
+    return qc, qc_source
 
-imaging = pd.read_csv(imaging_data_filepath)
-qc = pd.read_csv(qc_data_filepath)
+imaging, imaging_source = load_imaging()
+qc, qc_source = load_qc()
 
 sites = list(imaging.site.unique())
 
@@ -106,6 +118,5 @@ scan_dict = {'T1 Received':'T1',
 icols = list(scan_dict.keys())
 icols2 = list(scan_dict.values())
 
-color_mapping_list = [(0.0, 'white'),(0.1, 'lightgrey'),(0.25, 'red'),(0.5, 'orange'),(0.75, 'yellow'),(1.0, 'lightgreen')]
-
+color_mapping_list = [(0.0, 'white'),(0.1, 'lightgrey'),(0.25, 'red'),(0.5, 'orange'),(0.75, 'yellow'),(1.0, 'green')]
 stacked_bar_df = get_stacked_bar_data(qc, 'sub', 'rating', ['site','ses'])

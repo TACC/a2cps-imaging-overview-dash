@@ -17,8 +17,8 @@ from styling import *
 # CUSTOM FUNCTIONS FOR DASH UI COMPONENTS
 # ----------------------------------------------------------------------------
 
-def pie_scan(df, col):
-    fig = px.pie(df, values='count', names=col, title=col,
+def pie_scan(df, value_col, col):
+    fig = px.pie(df, values=value_col, names=col, title=col,
          color_discrete_sequence=['SteelBlue','lightgrey']
         )
     fig.update_traces(textposition='inside', textinfo='percent+label')
@@ -28,7 +28,7 @@ def pie_scan(df, col):
 def build_pie_col(df, col):
     figure_id = 'pie_' + col
     pie_col = dbc.Col([
-        dcc.Graph(figure = pie_scan(df, col), id = figure_id)
+        dcc.Graph(figure = pie_scan(df, 'Count', col), id = figure_id)
     ], width = 4)
     return pie_col
 
