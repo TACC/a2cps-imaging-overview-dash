@@ -84,12 +84,8 @@ imaging_data_filepath = os.path.join(DATA_PATH,imaging_datafile)
 qc_datafile = 'qc_log.csv'
 qc_data_filepath = os.path.join(DATA_PATH,qc_datafile)
 
-bold_datafile = 'group_bold.csv'
-bold_data_filepath = os.path.join(DATA_PATH,bold_datafile)
-
 imaging = pd.read_csv(imaging_data_filepath)
 qc = pd.read_csv(qc_data_filepath)
-bold = pd.read_csv(bold_data_filepath)
 
 sites = list(imaging.site.unique())
 
