@@ -32,11 +32,57 @@ def build_pie_col(df, col):
     ], width = 4)
     return pie_col
 
+def bar_chart_dataframe(df, mcc_dict, count_col, x_col, color_col = None, facet_col = None, facet_row = None, chart_type='Count'):
+    # Get grouping cols for stacked bar
+    bar_cols = [x_col]
+    for col in [facet_col, facet_row]:
+        if col:
+            bar_cols.append(col)
+
+    # Add color col to group cols
+    group_cols = bar_cols.copy()
+    if color_col:
+        group_cols.append(color_col)
+
+    df = df.merge(pd.DataFrame(mcc_dict), how='left', on='site')
+    df = df[[count_col] + group_cols].groupby(group_cols).count().reset_index()
+    df['N'] = df[[count_col] + bar_cols].groupby(bar_cols)[count_col].transform('sum')
+    df['Percent'] = 100 * df[count_col] / df['N']
+
+    if chart_type == 'Percent':
+        y_col = 'Percent'
+    else:
+        y_col = count_col
+
+    fig = px.bar(df, y=y_col, x=x_col, color=color_col, facet_col = facet_col, facet_row = facet_row,
+                 text=df[count_col],
+                 color_discrete_map={'red':'FireBrick',
+                                     'yellow':'Gold',
+                                     'green':'ForestGreen',
+                                     'unavailable':'grey'},
+              category_orders={"scan": ["T1w", "CUFF1", "CUFF2", "REST1", 'REST2'],
+                              "rating": ["green","yellow","red"]}
+                )
+
+    # Update display text of legend
+    rating_legend = {'green':'Green: no variations from protocol',
+                      'yellow':'Yellow: minor variations, correctable' ,
+                      'red':'Red: significant variations, not expected to be usable'}
+    fig.for_each_trace(lambda t: t.update(name = rating_legend[t.name],
+                                          legendgroup = rating_legend[t.name]
+                                         ))
+    fig.update_xaxes(title_text=' ')
+
+    fig.update_layout(legend=dict( orientation = 'h'))
+    fig.update_layout(legend_title_text='')
+
+    return fig
+
 def generate_heat_matrix(df, colors):
     cut = len(df)
     fig = px.imshow(
-            df,
-            height=cut*55,
+            df.T,
+            # height=cut*55,
             color_continuous_scale = colors,
             contrast_rescaling =  'infer'
     )
@@ -48,7 +94,7 @@ def generate_heat_matrix(df, colors):
         xaxis_side='top',
         xaxis_tickangle=-45
     ).update_xaxes(
-        automargin=True, 
+        automargin=True,
     ).update_yaxes(
         automargin=True,
     )
@@ -56,4 +102,4 @@ def generate_heat_matrix(df, colors):
         xgap = 3,
         ygap = 3
     )
-    return fig
+    return fig    
