@@ -57,8 +57,10 @@ def get_heat_matrix_df(qc, site, color_mapping_list):
                  'V3-T1w', 'V3-CUFF1', 'V3-CUFF2', 'V3-REST1', 'V3-REST2']
         matrix_df = q3_matrix[q3_matrix_cols]
         matrix_df.insert(5, "", [0.1] * len(matrix_df))
+        matrix_df.columns.name = None
+        matrix_df.index.name = None
     else:
-        matrix_df = None
+        matrix_df = pd.DataFrame()
     return matrix_df
 
 def get_stacked_bar_data(df, id_col, metric_col, cat_cols, count_col = None):
@@ -74,39 +76,57 @@ def get_stacked_bar_data(df, id_col, metric_col, cat_cols, count_col = None):
     sb_grouped['%'] = 100 * sb_grouped[count_col] / sb_grouped['Total N']
     return sb_grouped
 
+
+
 # ----------------------------------------------------------------------------
 # LOAD DATA
 # ----------------------------------------------------------------------------
+
 data_repository = 'https://api.a2cps.org/files/v2/download/public/system/a2cps.storage.community/reports/imaging'
-def load_imaging():
-    try:
-        imaging = pd.read_csv('/'.join([data_repository,'imaging-log-latest.csv']))
-        imaging_source = 'url'
-    except:
+
+def load_imaging(source='url'):
+    if source == 'local':
         imaging = pd.read_csv(os.path.join(DATA_PATH,'imaging_log.csv'))
         imaging_source = 'local'
+    else:
+        try:
+            imaging = pd.read_csv('/'.join([data_repository,'imaging-log-latest.csv']))
+            imaging_source = 'url'
+        except:
+            imaging = pd.read_csv(os.path.join(DATA_PATH,'imaging_log.csv'))
+            imaging_source = 'local'
+
     return imaging, imaging_source
 
-def load_qc():
-    try:
-        qc = pd.read_csv('/'.join([data_repository,'qc-log-latest.csv']))
-        qc_source = 'url'
-    except:
+def load_qc(source='url'):
+    if source == 'local':
         qc = pd.read_csv(os.path.join(DATA_PATH,'qc_log.csv'))
         qc_source = 'local'
+    else:
+        try:
+            qc = pd.read_csv('/'.join([data_repository,'qc-log-latest.csv']))
+            qc_source = 'url'
+        except:
+            qc = pd.read_csv(os.path.join(DATA_PATH,'qc_log.csv'))
+            qc_source = 'local'
     return qc, qc_source
 
-imaging, imaging_source = load_imaging()
-qc, qc_source = load_qc()
+# imaging, imaging_source = load_imaging()
+# qc, qc_source = load_qc()
 
-sites = list(imaging.site.unique())
+# sites = list(imaging.site.unique())
 
 
 # ----------------------------------------------------------------------------
 # PROCESS DATA
 # ----------------------------------------------------------------------------
-completions = get_completions(imaging)
-imaging_overview = roll_up(imaging)
+# completions = get_completions(imaging)
+# imaging_overview = roll_up(imaging)
+mcc_dict = {'mcc': [1,1,1,2,2,2],
+            'site':['UI','UC','NS','UM', 'WS','SH'],
+            'site_facet': [1,2,3,1,2,3]
+            }
+
 
 scan_dict = {'T1 Received':'T1',
    'DWI Received':'DWI',
@@ -119,4 +139,4 @@ icols = list(scan_dict.keys())
 icols2 = list(scan_dict.values())
 
 color_mapping_list = [(0.0, 'white'),(0.1, 'lightgrey'),(0.25, 'red'),(0.5, 'orange'),(0.75, 'yellow'),(1.0, 'green')]
-stacked_bar_df = get_stacked_bar_data(qc, 'sub', 'rating', ['site','ses'])
+# stacked_bar_df = get_stacked_bar_data(qc, 'sub', 'rating', ['site','ses'])

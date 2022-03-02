@@ -5,6 +5,7 @@
 import dash_bootstrap_components as dbc
 from dash import Dash, callback, clientside_callback, html, dcc, dash_table as dt, Input, Output, State, MATCH, ALL
 from dash.exceptions import PreventUpdate
+import dash_daq as daq
 
 # import local modules
 from config_settings import *
@@ -26,6 +27,8 @@ app = Dash(__name__,
                 requests_pathname_prefix=REQUESTS_PATHNAME_PREFIX,
                 suppress_callback_exceptions=True
                 )
+
+
 
 # ----------------------------------------------------------------------------
 # DASH APP COMPONENT FUNCTIONS
@@ -64,7 +67,7 @@ def create_image_overview(df):
     return overview_div
 
 def completions_table(completions):
-    completions_section = [
+    completions_div = [
         dbc.Row([dbc.Col([
             html.H3('Overall completion of scans Y/N for each scan in acquisition order: T1, DWI, REST1, CUFF1, CUFF2, REST2)')
         ])]),
@@ -80,7 +83,7 @@ def completions_table(completions):
             ])
         ]),
     ]
-    return completions_section
+    return completions_div
 
 def create_pie_charts(completions):
     pie_charts = [
@@ -97,43 +100,42 @@ def create_pie_charts(completions):
     ]
     return pie_charts
 
-# build page parts
-filter_box = html.Div(
-    [
-        dbc.Button("Filters", id="open-offcanvas", n_clicks=0),
-        dbc.Offcanvas(
-            html.P(
-                "This is the content of the Offcanvas. "
-                "Close it by clicking on the close button, or "
-                "the backdrop."
-            ),
-            id="offcanvas",
-            title="Filter Data",
-            is_open=False,
-            placement='end'
-        ),
-    ]
-)
 
-stacked_bar_fig = px.bar(stacked_bar_df, x='ses', y='%',
-                 color=stacked_bar_df['rating'], barmode='stack',
-                  text=stacked_bar_df['count'],  # Add Percent Sign
-                 facet_col = 'site',
-                 color_discrete_map={'red':'FireBrick',
-                                     'yellow':'Gold',
-                                     'green':'ForestGreen',
-                                     'unavailable':'grey'})
 # ----------------------------------------------------------------------------
 # DASH APP LAYOUT FUNCTION
 # ----------------------------------------------------------------------------
-def create_content():
+def serve_data_stores(source):
+    imaging, imaging_source = load_imaging(source)
+    qc, qc_source = load_qc(source)
+    completions = get_completions(imaging)
+    imaging_overview = roll_up(imaging)
+    stacked_bar_df = get_stacked_bar_data(qc, 'sub', 'rating', ['site','ses'])
+    data_dictionary = {
+        'imaging': imaging.to_dict('records'),
+        'imaging_source': imaging_source,
+        'sites':  list(imaging.site.unique()),
+        'qc': qc.to_dict('records'),
+        'qc_source': qc_source,
+        'completions': completions.to_dict('records'),
+        'imaging_overview' : imaging_overview.to_dict('records'),
+
+    }
+    data_stores = html.Div([
+        dcc.Store(id='session_data', storage_type='local', data = data_dictionary),
+        # html.P('Imaging Source: ' + data_dictionary['imaging_source']),
+        # html.P('QC Source: ' + data_dictionary['qc_source']),
+        create_content(list(imaging.site.unique()))
+    ])
+    return data_stores
+
+def create_content(sites):
     content = html.Div([
                 html.Div([
                     dbc.Row([
                         dbc.Col([
                             html.H1('Imaging Overview Report', style={'textAlign': 'center'})
                         ])
-                    ], justify='center', align='center'),
+                        ], justify='center', align='center'),
                     dbc.Row([
                         dbc.Col([
                             html.P(date.today().strftime('%B %d, %Y')),
@@ -142,58 +144,42 @@ def create_content():
                             dcc.Dropdown(
                                 id='dropdown-sites',
                                 options=[
-                                    {'label': 'All Sites', 'value': ",".join(sites)},
-                                    {'label': 'MCC1', 'value': 'UIC,UC,NS'},
-                                    {'label': 'MCC2', 'value': 'UM, WS, NS' },
-                                    {'label': 'University of Illinois at Chicago', 'value': 'UI' },
-                                    {'label': 'University of Chicago', 'value': 'UC' },
-                                    {'label': 'NorthShore', 'value': 'NS' },
-                                    {'label': 'University of Michigan', 'value': 'UM' },
-                                    {'label': 'Wayne State University', 'value': 'WS' },
-                                    {'label': 'Spectrum Health', 'value': 'NS' }
+                                    {'label': 'All Sites', 'value': (',').join(sites)},
+                                    {'label': 'MCC1', 'value': 'UI,UC,NS'},
+                                    {'label': 'MCC2', 'value': 'UM,WS,SH' },
+                                    {'label': 'MCC1: University of Illinois at Chicago', 'value': 'UI' },
+                                    {'label': 'MCC1: University of Chicago', 'value': 'UC' },
+                                    {'label': 'MCC1: NorthShore', 'value': 'NS' },
+                                    {'label': 'MCC2: University of Michigan', 'value': 'UM' },
+                                    {'label': 'MCC2: Wayne State University (pending)', 'value': 'WS' },
+                                    {'label': 'MCC2: Spectrum Health (pending)', 'value': 'SH' }
                                 ],
-                                value = 'UI'
-                                # value=",".join(sites)
+                                # value = 'NS'
+                                multi=False,
+                                clearable=False,
+                                value=(',').join(sites)
                             ),
                         ], width=2),
                             # dbc.Col([filter_box],width=2)]),
-                ], style={'border':'1px solid black'}),
-
-                dcc.Tabs(id="tabs", value='tab-overview', children=[
-                    dcc.Tab(label='Overview', value='tab-overview',
-                        children =[
-                            create_image_overview(imaging_overview),
-
-                            dcc.Graph(figure=stacked_bar_fig)
-                        ]
-                    ),
-                    dcc.Tab(label='Completions', value='tab-completions',
-                        children =[
-                            html.Div(id='completions_section'),
-                        ]
-                    ),
-                    dcc.Tab(label='Pie Charts', value='tab-pie',
-                        children =[
-                            html.Div(id='pie_charts')
-                        ]
-                    ),
-                    dcc.Tab(label='Heat Map', value='tab-heatmap',
-                        children =[
-                            html.Div(id='heatmap')
-                        ]
-                    ),
-                ]),
-            ]
-            , style={'border':'1px solid black', 'padding':'10px'}
+                        ], style={'border':'1px solid black'}),
+                    dbc.Tabs(id="tabs", active_tab='tab-overview', children=[
+                        dbc.Tab(label='Overview', tab_id='tab-overview'),
+                        dbc.Tab(label='Completions', tab_id='tab-completions'),
+                        dbc.Tab(label='Pie Charts', tab_id='tab-pie'),
+                        dbc.Tab(label='Heat Map', tab_id='tab-heatmap'),
+                    ]),
+                    html.Div(id='tab-content'),
+                ]
+                , style={'border':'1px solid black', 'padding':'10px'}
             )
         ])
     return content
 
 def serve_layout():
     # try:
-    page_layout = html.Div(
-        create_content()
-    )
+    page_layout = html.Div([
+        serve_data_stores(),
+    ])
     # except:
     #     page_layout = html.Div(['There has been a problem accessing the data for this application.'])
     return page_layout
@@ -204,48 +190,111 @@ app.layout = serve_layout
 # ----------------------------------------------------------------------------
 # DATA CALLBACKS
 # ----------------------------------------------------------------------------
+@app.callback(Output("tab-content", "children"), [Input("tabs", "active_tab")])
+def switch_tab(at):
+    if at == "tab-overview":
+        overview = html.Div([
+            dbc.Row([
+                dbc.Col([html.Div(id='overview_div')], width=8),
 
-# @app.callback(
-#     Output("offcanvas", "is_open"),
-#     Input("open-offcanvas", "n_clicks"),
-#     [State("offcanvas", "is_open")],
-# )
-# def toggle_offcanvas(n1, is_open):
-#     if n1:
-#         return not is_open
-#     return is_open
+            ]),
+            dbc.Row([
+                dbc.Col([dcc.Graph(id='graph_stackedbar')], width=10),
+                    dbc.Col([
+                        html.H3('Bar Chart Settings'),
+                        daq.ToggleSwitch(
+                                id='toggle_stackedbar',
+                                label=['Count','Stacked Percent'],
+                                value=False
+                            )
+                        ],width=2),
+                ])
+        ])
+        return overview
+    elif at == "tab-completions":
+        completions = html.Div([
+                html.Div(id='completions_section')
+            ])
+        return completions
+    elif at == "tab-pie":
+        pies = html.Div(id='pie_charts')
+        return pies
+    elif at == "tab-heatmap":
+        heatmap = html.Div(id='heatmap')
+        return heatmap
+    return html.P("This shouldn't ever be displayed...")
+# Define callback to update graph_stackedbar
 
-# Define callback to update graph
+# Toggle Stacked bar toggle_stackedbar graph_stackedbar
+@app.callback(
+    Output('overview_div', 'children'),
+    Input('session_data', 'data')
+)
+def update_overview_section(data):
+    return create_image_overview(pd.DataFrame.from_dict(data['imaging_overview']))
+
+@app.callback(
+    Output('graph_stackedbar', 'figure'),
+    Input('toggle_stackedbar', 'value'),
+    State('session_data', 'data')
+)
+def update_stackedbar(type, data):
+    global mcc_dict
+    # False = Count and True = Percent
+    if type:
+        type = 'Percent'
+    else:
+        type = 'Count'
+
+    qc = pd.DataFrame.from_dict(data['qc'])
+    count_col, x_col, color_col, facet_col = 'sub', 'scan', 'rating', 'site'
+    fig = bar_chart_dataframe(qc,mcc_dict, 'sub', 'ses', color_col, 'site', facet_row = None, chart_type=type)
+    return fig
+
+
 @app.callback(
     Output('completions_section', 'children'),
-    [Input('dropdown-sites', 'value')]
+    Input('dropdown-sites', 'value'),
+    State('session_data', 'data')
 )
-def update_image_report(sites):
+def update_image_report(sites, data):
+    imaging = pd.DataFrame.from_dict(data['imaging'])
     df = imaging[imaging['site'].isin(sites.split(","))]
     completions = get_completions(df)
     return completions_table(completions)
 
 @app.callback(
     Output('pie_charts', 'children'),
-    [Input('dropdown-sites', 'value')]
+    Input('dropdown-sites', 'value'),
+    State('session_data', 'data')
 )
-def update_pie(sites):
+def update_pie(sites, data):
+    imaging = pd.DataFrame.from_dict(data['imaging'])
     df = imaging[imaging['site'].isin(sites.split(","))]
     completions = get_completions(df)
     return create_pie_charts(completions)
 
 @app.callback(
     Output('heatmap', 'children'),
-    [Input('dropdown-sites', 'value')]
+    Input('dropdown-sites', 'value'),
+    State('session_data', 'data')
 )
-def update_heatmap(sites):
+def update_heatmap(sites, data):
+    global color_mapping_list
     sites_list = sites.split(",")
-    if len(sites_list) ==1:
+    qc = pd.DataFrame.from_dict(data['qc'])
+
+    if len(sites_list) == 1:
         df  = get_heat_matrix_df(qc, sites, color_mapping_list)
-        fig_heatmap = generate_heat_matrix(df, color_mapping_list)
-        heatmap = html.Div([
-            dcc.Graph(id='graph_heatmap', figure=fig_heatmap)
-        ],style={'border':'1px solid blue'})
+        if not df.empty:
+            fig_heatmap = generate_heat_matrix(df, color_mapping_list)
+            heatmap = html.Div([
+                dcc.Graph(id='graph_heatmap', figure=fig_heatmap, style={'border':'1px solid blue'})
+            ])
+        else:
+            heatmap = html.Div([
+                html.H4('There is not yet data for this site')
+            ], style={'padding': '50px', 'font-style': 'italic'})
     else:
         heatmap = html.Div([
             html.H4('Please select a single site from the dropdown above to see a Heatmap of Image Quality')
