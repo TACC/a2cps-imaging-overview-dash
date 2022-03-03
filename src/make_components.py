@@ -75,7 +75,7 @@ def bar_chart_dataframe(df, mcc_dict, count_col, x_col, color_col = None, facet_
                                           legendgroup = rating_legend[t.name]
                                          ))
     fig.update_xaxes(title_text=' ')
-
+    fig.update_xaxes(matches=None)
     fig.update_layout(legend=dict( orientation = 'h'))
     fig.update_layout(legend_title_text='')
 
