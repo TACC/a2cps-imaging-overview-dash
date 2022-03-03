@@ -143,6 +143,17 @@ def create_content(sites):
                         dbc.Col([
                             html.P(date.today().strftime('%B %d, %Y')),
                             html.P('Version Date: 03/03/22')], width=10),
+                            # dbc.Col([filter_box],width=2)]),
+                        ], style={'border':'1px solid black'}),
+                    dbc.Row([
+                        dbc.Col([
+                            dbc.Tabs(id="tabs", active_tab='tab-overview', children=[
+                                dbc.Tab(label='Overview', tab_id='tab-overview'),
+                                dbc.Tab(label='Completions', tab_id='tab-completions'),
+                                dbc.Tab(label='Pie Charts', tab_id='tab-pie'),
+                                dbc.Tab(label='Heat Map', tab_id='tab-heatmap'),
+                            ]),
+                        ],width=10),
                         dbc.Col([
                             dcc.Dropdown(
                                 id='dropdown-sites',
@@ -162,16 +173,12 @@ def create_content(sites):
                                 clearable=False,
                                 value=(',').join(sites)
                             ),
-                        ], width=2),
-                            # dbc.Col([filter_box],width=2)]),
-                        ], style={'border':'1px solid black'}),
-                    dbc.Tabs(id="tabs", active_tab='tab-overview', children=[
-                        dbc.Tab(label='Overview', tab_id='tab-overview'),
-                        dbc.Tab(label='Completions', tab_id='tab-completions'),
-                        dbc.Tab(label='Pie Charts', tab_id='tab-pie'),
-                        dbc.Tab(label='Heat Map', tab_id='tab-heatmap'),
+                        ], id='dropdown-sites-col',width=2),
                     ]),
-                    html.Div(id='tab-content'),
+                    dbc.Row([
+                        dbc.Col([html.Div(id='tab-content')])
+                    ])
+
                 ]
                 , style={'border':'1px solid black', 'padding':'10px'}
             )
@@ -194,7 +201,9 @@ app.layout = serve_layout
 # DATA CALLBACKS
 # ----------------------------------------------------------------------------
 
-@app.callback(Output("tab-content", "children"), [Input("tabs", "active_tab")])
+@app.callback(Output("tab-content", "children"),
+    Output('dropdown-sites-col','style'),
+    Input("tabs", "active_tab"))
 def switch_tab(at):
     if at == "tab-overview":
         overview = html.Div([
@@ -251,18 +260,19 @@ def switch_tab(at):
                         ],width=2),
                 ])
         ])
-        return overview
+        style = {'display': 'none'}
+        return overview, style
     elif at == "tab-completions":
         completions = html.Div([
                 html.Div(id='completions_section')
             ])
-        return completions
+        return completions, {'display': 'block'}
     elif at == "tab-pie":
         pies = html.Div(id='pie_charts')
-        return pies
+        return pies, {'display': 'block'}
     elif at == "tab-heatmap":
         heatmap = html.Div(id='heatmap')
-        return heatmap
+        return heatmap, {'display': 'block'}
     return html.P("This shouldn't ever be displayed...")
 # Define callback to update graph_stackedbar
 
