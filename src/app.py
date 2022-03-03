@@ -14,6 +14,9 @@ from make_components import *
 from styling import *
 
 
+# Bar Chart options
+bar_chart_options = {'None':'None', 'MCC':'mcc', 'Site':'site','Visit':'ses','Scan':'scan'}
+
 # ----------------------------------------------------------------------------
 # APP Settings
 # ----------------------------------------------------------------------------
@@ -139,7 +142,7 @@ def create_content(sites):
                     dbc.Row([
                         dbc.Col([
                             html.P(date.today().strftime('%B %d, %Y')),
-                            html.P('Version 1')], width=10),
+                            html.P('Version Date: 03/03/22')], width=10),
                         dbc.Col([
                             dcc.Dropdown(
                                 id='dropdown-sites',
@@ -178,7 +181,7 @@ def create_content(sites):
 def serve_layout():
     # try:
     page_layout = html.Div([
-        serve_data_stores('url'),
+            serve_data_stores('url'), # change to 'url' before deploy
     ])
     # except:
     #     page_layout = html.Div(['There has been a problem accessing the data for this application.'])
@@ -190,6 +193,7 @@ app.layout = serve_layout
 # ----------------------------------------------------------------------------
 # DATA CALLBACKS
 # ----------------------------------------------------------------------------
+
 @app.callback(Output("tab-content", "children"), [Input("tabs", "active_tab")])
 def switch_tab(at):
     if at == "tab-overview":
@@ -199,14 +203,51 @@ def switch_tab(at):
 
             ]),
             dbc.Row([
-                dbc.Col([dcc.Graph(id='graph_stackedbar')], width=10),
+                dbc.Col([html.Div(id='graph_stackedbar_div')], width=10),
                     dbc.Col([
                         html.H3('Bar Chart Settings'),
+                        html.Label('Chart Type'),
                         daq.ToggleSwitch(
                                 id='toggle_stackedbar',
                                 label=['Count','Stacked Percent'],
                                 value=False
-                            )
+                            ),
+                        # html.Label('Split MCC groups'),
+                        # daq.ToggleSwitch(
+                        #         id='toggle_mcc',
+                        #         label=['Combined','Split'],
+                        #         value=False
+                        #     ),
+                        html.Label('X-axis Category'),
+                        dcc.Dropdown(
+                            id='dropdown-xaxis',
+                            options=[
+                                {'label': i, 'value': bar_chart_options[i]} for i in bar_chart_options.keys()
+                                ],
+                            multi=False,
+                            clearable=False,
+                            value='None'
+                        ),
+                        html.Label('Facet Column:'),
+                        dcc.Dropdown(
+                            id='dropdown-facet-col',
+                            options=[
+                                {'label': i, 'value': bar_chart_options[i]} for i in bar_chart_options.keys()
+                                ],
+                            multi=False,
+                            clearable=False,
+                            value='None'
+                        ),
+                        html.Label('Facet Row:'),
+                        dcc.Dropdown(
+                            id='dropdown-facet-row',
+                            options=[
+                                {'label': i, 'value': bar_chart_options[i]} for i in bar_chart_options.keys()
+                                ],
+                            multi=False,
+                            clearable=False,
+                            value='None'
+                        ),
                         ],width=2),
                 ])
         ])
@@ -234,11 +275,14 @@ def update_overview_section(data):
     return create_image_overview(pd.DataFrame.from_dict(data['imaging_overview']))
 
 @app.callback(
-    Output('graph_stackedbar', 'figure'),
+    Output('graph_stackedbar_div', 'children'),
     Input('toggle_stackedbar', 'value'),
+    Input('dropdown-xaxis', 'value'),
+    Input('dropdown-facet-col', 'value'),
+    Input('dropdown-facet-row', 'value'),
     State('session_data', 'data')
 )
-def update_stackedbar(type, data):
+def update_stackedbar(type, xaxis, col, row, data):
     global mcc_dict
     # False = Count and True = Percent
     if type:
@@ -246,10 +290,30 @@ def update_stackedbar(type, data):
     else:
         type = 'Count'
 
-    qc = pd.DataFrame.from_dict(data['qc'])
-    count_col, x_col, color_col, facet_col = 'sub', 'scan', 'rating', 'site'
-    fig = bar_chart_dataframe(qc,mcc_dict, 'sub', 'ses', color_col, 'site', facet_row = None, chart_type=type)
-    return fig
+    if xaxis =='None':
+        x_col = None
+    else:
+        x_col = xaxis
+
+    if col =='None':
+        facet_col = None
+    else:
+        facet_col = col
+
+    if row =='None':
+        facet_row = None
+    else:
+        facet_row = row
+    if (x_col and (facet_col or facet_row)) and (x_col == facet_col or x_col == facet_row) or (facet_col and facet_row and facet_col == facet_row):
+        kids=[dbc.Alert("Chart dropdown selections can not be the same except for 'None'", color="warning")]
+    else:
+        qc = pd.DataFrame.from_dict(data['qc'])
+        count_col='sub'
+        color_col = 'rating'
+
+        fig = bar_chart_dataframe(qc, mcc_dict, count_col, x_col, color_col, facet_col, facet_row = facet_row, chart_type=type)
+        kids = [dcc.Graph(id='graph_stackedbar', figure=fig)]
+    return kids
 
 
 @app.callback(

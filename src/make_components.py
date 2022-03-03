@@ -34,6 +34,9 @@ def build_pie_col(df, col):
 
 def bar_chart_dataframe(df, mcc_dict, count_col, x_col, color_col = None, facet_col = None, facet_row = None, chart_type='Count'):
     # Get grouping cols for stacked bar
+    if x_col is None:
+        df['all'] = 1
+        x_col ='all'
     bar_cols = [x_col]
     for col in [facet_col, facet_row]:
         if col:
@@ -102,4 +105,4 @@ def generate_heat_matrix(df, colors):
         xgap = 3,
         ygap = 3
     )
-    return fig    
+    return fig
