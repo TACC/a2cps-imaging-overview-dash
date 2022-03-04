@@ -46,19 +46,33 @@ def bar_chart_dataframe(df, mcc_dict, count_col, x_col, color_col = None, facet_
     group_cols = bar_cols.copy()
     if color_col:
         group_cols.append(color_col)
-
     df = df.merge(pd.DataFrame(mcc_dict), how='left', on='site')
     df = df[[count_col] + group_cols].groupby(group_cols).count().reset_index()
     df['N'] = df[[count_col] + bar_cols].groupby(bar_cols)[count_col].transform('sum')
     df['Percent'] = 100 * df[count_col] / df['N']
 
-    if chart_type == 'Percent':
-        y_col = 'Percent'
-    else:
-        y_col = count_col
+    col_rename_dict = {'site':'Site', 'mcc':'MCC', 'rating': 'Image Rating',
+                       'sub':'Scan Count', 'N':'Category Count', 'scan':'Scan'}
 
-    fig = px.bar(df, y=y_col, x=x_col, color=color_col, facet_col = facet_col, facet_row = facet_row,
-                 text=df[count_col],
+    df.rename(columns = col_rename_dict, inplace=True)
+
+    # cnvert variables
+    fig_settings = {'count_col': count_col,
+                    'y': count_col,
+                    'x': x_col,
+                    'color': color_col,
+                    'facetcol': facet_col,
+                    'facetrow': facet_row}
+    for col in list(fig_settings.keys()):
+        if fig_settings[col] and fig_settings[col] in list(col_rename_dict.keys()):
+            fig_settings[col] = col_rename_dict[fig_settings[col]]
+
+    if chart_type == 'Percent':
+        fig_settings['y'] = 'Percent'
+
+    fig = px.bar(df, y=fig_settings['y'], x=fig_settings['x'], color=fig_settings['color'],
+                    facet_col = fig_settings['facetcol'], facet_row = fig_settings['facetrow'],
+                 text=df[fig_settings['count_col']],
                  color_discrete_map={'red':'FireBrick',
                                      'yellow':'Gold',
                                      'green':'ForestGreen',
