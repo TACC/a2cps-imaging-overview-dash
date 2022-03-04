@@ -21,7 +21,7 @@ bar_chart_options = {'None':'None', 'MCC':'mcc', 'Site':'site','Visit':'ses','Sc
 # APP Settings
 # ----------------------------------------------------------------------------
 
-external_stylesheets_list = [dbc.themes.SANDSTONE] #  set any external stylesheets
+external_stylesheets_list = [dbc.themes.SANDSTONE, 'https://codepen.io/chriddyp/pen/bWLwgP.css'] #  set any external stylesheets
 
 app = Dash(__name__,
                 external_stylesheets=external_stylesheets_list,
@@ -221,44 +221,101 @@ def switch_tab(at):
                                 label=['Count','Stacked Percent'],
                                 value=False
                             ),
-                        # html.Label('Split MCC groups'),
-                        # daq.ToggleSwitch(
-                        #         id='toggle_mcc',
-                        #         label=['Combined','Split'],
-                        #         value=False
-                        #     ),
-                        html.Label('X-axis Category'),
+                        html.Label('Separate by Visit'),
+                        daq.ToggleSwitch(
+                                id='toggle_visit',
+                                label=['Combined','Split'],
+                                value=False
+                            ),
+
+                        html.Label('Chart Selection'),
                         dcc.Dropdown(
-                            id='dropdown-xaxis',
-                            options=[
-                                {'label': i, 'value': bar_chart_options[i]} for i in bar_chart_options.keys()
-                                ],
-                            multi=False,
-                            clearable=False,
-                            value='None'
+                            id='dropdown-bar',
+                           options=[
+                               {'label': ' Site and MCC', 'value': 1},
+                               {'label': ' Site', 'value': 2},
+                               {'label': ' MCC', 'value': 3},
+                               {'label': ' Combined', 'value': 4},
+                           ],
+                           multi=False,
+                           clearable=False,
+                           value=1
                         ),
-                        html.Label('Facet Column:'),
-                        dcc.Dropdown(
-                            id='dropdown-facet-col',
-                            options=[
-                                {'label': i, 'value': bar_chart_options[i]} for i in bar_chart_options.keys()
-                                ],
-                            multi=False,
-                            clearable=False,
-                            value='None'
-                        ),
-                        html.Label('Facet Row:'),
-                        dcc.Dropdown(
-                            id='dropdown-facet-row',
-                            options=[
-                                {'label': i, 'value': bar_chart_options[i]} for i in bar_chart_options.keys()
-                                ],
-                            multi=False,
-                            clearable=False,
-                            value='None'
-                        ),
+
+
+
+                        #     HIde these when updated
+                        # html.Label('X-axis Category'),
+                        # dcc.Dropdown(
+                        #     id='dropdown-xaxis',
+                        #     options=[
+                        #         {'label': i, 'value': bar_chart_options[i]} for i in bar_chart_options.keys()
+                        #         ],
+                        #     multi=False,
+                        #     clearable=False,
+                        #     value='None'
+                        # ),
+                        # html.Label('Facet Column:'),
+                        # dcc.Dropdown(
+                        #     id='dropdown-facet-col',
+                        #     options=[
+                        #         {'label': i, 'value': bar_chart_options[i]} for i in bar_chart_options.keys()
+                        #         ],
+                        #     multi=False,
+                        #     clearable=False,
+                        #     value='None'
+                        # ),
+                        # html.Label('Facet Row:'),
+                        # dcc.Dropdown(
+                        #     id='dropdown-facet-row',
+                        #     options=[
+                        #         {'label': i, 'value': bar_chart_options[i]} for i in bar_chart_options.keys()
+                        #         ],
+                        #     multi=False,
+                        #     clearable=False,
+                        #     value='None'
+                        # ),
                         ],width=2),
-                ])
+                ]),
+            # dbc.Row([
+            #     dbc.Col([html.Div(id='graph_stackedbar_div_old')], width=10),
+            #         dbc.Col([
+            #             html.H3('Bar Chart Settings'),
+            #
+            #
+            #             #     HIde these when updated
+            #             html.Label('X-axis Category'),
+            #             dcc.Dropdown(
+            #                 id='dropdown-xaxis',
+            #                 options=[
+            #                     {'label': i, 'value': bar_chart_options[i]} for i in bar_chart_options.keys()
+            #                     ],
+            #                 multi=False,
+            #                 clearable=False,
+            #                 value='None'
+            #             ),
+            #             html.Label('Facet Column:'),
+            #             dcc.Dropdown(
+            #                 id='dropdown-facet-col',
+            #                 options=[
+            #                     {'label': i, 'value': bar_chart_options[i]} for i in bar_chart_options.keys()
+            #                     ],
+            #                 multi=False,
+            #                 clearable=False,
+            #                 value='None'
+            #             ),
+            #             html.Label('Facet Row:'),
+            #             dcc.Dropdown(
+            #                 id='dropdown-facet-row',
+            #                 options=[
+            #                     {'label': i, 'value': bar_chart_options[i]} for i in bar_chart_options.keys()
+            #                     ],
+            #                 multi=False,
+            #                 clearable=False,
+            #                 value='None'
+            #             ),
+            #             ],width=2),
+            #     ]),
         ])
         style = {'display': 'none'}
         return overview, style
@@ -284,46 +341,105 @@ def switch_tab(at):
 def update_overview_section(data):
     return create_image_overview(pd.DataFrame.from_dict(data['imaging_overview']))
 
+
 @app.callback(
     Output('graph_stackedbar_div', 'children'),
     Input('toggle_stackedbar', 'value'),
-    Input('dropdown-xaxis', 'value'),
-    Input('dropdown-facet-col', 'value'),
-    Input('dropdown-facet-row', 'value'),
+    Input('toggle_visit', 'value'),
+    Input('dropdown-bar', 'value'),
     State('session_data', 'data')
 )
-def update_stackedbar(type, xaxis, col, row, data):
+def update_stackedbar(type, visit, chart_selection, data):
     global mcc_dict
     # False = Count and True = Percent
+    # return json.dumps(mcc_dict)
     if type:
         type = 'Percent'
     else:
         type = 'Count'
 
-    if xaxis =='None':
-        x_col = None
-    else:
-        x_col = xaxis
+    # if visit:
+    #     visit='split'
+    # else:
+    #     visit='combined'
 
-    if col =='None':
-        facet_col = None
-    else:
-        facet_col = col
+    qc = pd.DataFrame.from_dict(data['qc'])
+    count_col='sub'
+    color_col = 'rating'
 
-    if row =='None':
-        facet_row = None
+    if chart_selection == 1:
+        if visit:
+            facet_row = 'ses'
+        else:
+            facet_row = None
+        fig = bar_chart_dataframe(qc, mcc_dict, count_col, 'site', color_col, 'mcc', facet_row,  chart_type=type)
     else:
-        facet_row = row
-    if (x_col and (facet_col or facet_row)) and (x_col == facet_col or x_col == facet_row) or (facet_col and facet_row and facet_col == facet_row):
-        kids=[dbc.Alert("Chart dropdown selections can not be the same except for 'None'", color="warning")]
-    else:
-        qc = pd.DataFrame.from_dict(data['qc'])
-        count_col='sub'
-        color_col = 'rating'
+        if visit:
+            x_col = 'ses'
+        else:
+            x_col = None
+        if chart_selection == 2:
+            fig = bar_chart_dataframe(qc, mcc_dict, count_col, x_col, color_col, 'site', chart_type=type)
 
-        fig = bar_chart_dataframe(qc, mcc_dict, count_col, x_col, color_col, facet_col, facet_row = facet_row, chart_type=type)
-        kids = [dcc.Graph(id='graph_stackedbar', figure=fig)]
-    return kids
+        elif chart_selection == 3:
+            fig = bar_chart_dataframe(qc, mcc_dict, count_col, x_col, color_col, 'mcc', chart_type=type)
+
+        else:
+            fig = bar_chart_dataframe(qc, mcc_dict, count_col, x_col, color_col, chart_type=type)
+
+    return [html.P(visit), dcc.Graph(id='graph_stackedbar', figure=fig)]
+    # if (x_col and (facet_col or facet_row)) and (x_col == facet_col or x_col == facet_row) or (facet_col and facet_row and facet_col == facet_row):
+    #     kids=[dbc.Alert("Chart dropdown selections can not be the same except for 'None'", color="warning")]
+    # else:
+    #     qc = pd.DataFrame.from_dict(data['qc'])
+    #     count_col='sub'
+    #     color_col = 'rating'
+    #
+    #     fig = bar_chart_dataframe(qc, mcc_dict, count_col, x_col, color_col, facet_col, facet_row = facet_row, chart_type=type)
+    #     kids = [dcc.Graph(id='graph_stackedbar', figure=fig)]
+
+
+# @app.callback(
+#     Output('graph_stackedbar_div_old', 'children'),
+#     Input('toggle_stackedbar', 'value'),
+#     Input('dropdown-xaxis', 'value'),
+#     Input('dropdown-facet-col', 'value'),
+#     Input('dropdown-facet-row', 'value'),
+#     State('session_data', 'data')
+# )
+# def update_stackedbar(type, xaxis, col, row, data):
+#     global mcc_dict
+#     # False = Count and True = Percent
+#     # return json.dumps(mcc_dict)
+#     if type:
+#         type = 'Percent'
+#     else:
+#         type = 'Count'
+#
+#     if xaxis =='None':
+#         x_col = None
+#     else:
+#         x_col = xaxis
+#
+#     if col =='None':
+#         facet_col = None
+#     else:
+#         facet_col = col
+#
+#     if row =='None':
+#         facet_row = None
+#     else:
+#         facet_row = row
+#     if (x_col and (facet_col or facet_row)) and (x_col == facet_col or x_col == facet_row) or (facet_col and facet_row and facet_col == facet_row):
+#         kids=[dbc.Alert("Chart dropdown selections can not be the same except for 'None'", color="warning")]
+#     else:
+#         qc = pd.DataFrame.from_dict(data['qc'])
+#         count_col='sub'
+#         color_col = 'rating'
+#
+#         fig = bar_chart_dataframe(qc, mcc_dict, count_col, x_col, color_col, facet_col, facet_row = facet_row, chart_type=type)
+#         kids = [dcc.Graph(id='graph_stackedbar', figure=fig)]
+#     return kids
 
 
 @app.callback(
@@ -363,7 +479,7 @@ def update_heatmap(sites, data):
         if not df.empty:
             fig_heatmap = generate_heat_matrix(df, color_mapping_list)
             heatmap = html.Div([
-                dcc.Graph(id='graph_heatmap', figure=fig_heatmap, style={'border':'1px solid blue'})
+                dcc.Graph(id='graph_heatmap', figure=fig_heatmap)
             ])
         else:
             heatmap = html.Div([
