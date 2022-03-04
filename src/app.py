@@ -124,7 +124,7 @@ def serve_data_stores(source):
 
     }
     data_stores = html.Div([
-        dcc.Store(id='session_data', storage_type='local', data = data_dictionary),
+        dcc.Store(id='session_data', storage_type='session', data = data_dictionary),
         # html.P('Imaging Source: ' + data_dictionary['imaging_source']),
         # html.P('QC Source: ' + data_dictionary['qc_source']),
         create_content(list(imaging.site.unique()))
