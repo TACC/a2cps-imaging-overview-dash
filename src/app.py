@@ -188,7 +188,9 @@ def create_content(sites):
 def serve_layout():
     # try:
     page_layout = html.Div([
-            serve_data_stores('url'), # change to 'url' before deploy
+    # change to 'url' before deploy
+            serve_data_stores('url'),
+            # serve_data_stores('local'),
     ])
     # except:
     #     page_layout = html.Div(['There has been a problem accessing the data for this application.'])
