@@ -72,19 +72,19 @@ def bar_chart_dataframe(df, mcc_dict, count_col, x_col, color_col = None, facet_
 
     fig = px.bar(df, y=fig_settings['y'], x=fig_settings['x'], color=fig_settings['color'],
                     facet_col = fig_settings['facetcol'], facet_row = fig_settings['facetrow'],
-                 text=df[fig_settings['count_col']],
-                 color_discrete_map={'red':'FireBrick',
-                                     'yellow':'Gold',
-                                     'green':'ForestGreen',
-                                     'unavailable':'grey'},
-              category_orders={"scan": ["T1w", "CUFF1", "CUFF2", "REST1", 'REST2'],
-                              "rating": ["green","yellow","red"]}
+                     text=df[fig_settings['count_col']],
+                     color_discrete_map={'red':'FireBrick',
+                                         'yellow':'Gold',
+                                         'green':'ForestGreen',
+                                         'unavailable':'grey'},
+                  category_orders={"Scan": ["T1w", "CUFF1", "CUFF2", "REST1", 'REST2'],
+                                  'Image Rating': ["green","yellow","red"]}
                 )
 
     # Update display text of legend
-    rating_legend = {'green':'Green: no variations from protocol',
-                      'yellow':'Yellow: minor variations, correctable' ,
-                      'red':'Red: significant variations, not expected to be usable'}
+    rating_legend = {'green':'no known issues',
+                      'yellow':'minor variations/issues; correctable' ,
+                      'red':'significant variations/issues; not expected to be usable'}
     fig.for_each_trace(lambda t: t.update(name = rating_legend[t.name],
                                           legendgroup = rating_legend[t.name]
                                          ))

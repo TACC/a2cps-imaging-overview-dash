@@ -27,17 +27,18 @@ def roll_up(imaging):
     return df
 
 def get_completions(imaging):
-    scan_dict = {'T1 Received':'T1',
-       'DWI Received':'DWI',
-       '1st Resting State Received':'REST1',
-       'fMRI Individualized Pressure Received':'CUFF1',
-       'fMRI Standard Pressure Received':'CUFF2',
-       '2nd Resting State Received':'REST2'}
+    scan_dict = {'T1 Indicated':'T1',
+       'DWI Indicated':'DWI',
+       '1st Resting State Indicated':'REST1',
+       'fMRI Individualized Pressure Indicated':'CUFF1',
+       'fMRI Standard Pressure Indicated':'CUFF2',
+       '2nd Resting State Indicated':'REST2'}
 
     icols = list(scan_dict.keys())
     icols2 = list(scan_dict.values())
 
-    completions = imaging[['subject_id']+icols].groupby(icols).count().reset_index().rename(columns=scan_dict).rename(columns={'subject_id':'Count'})
+    imaging['completions_id'] = imaging.apply(lambda x: str(x['subject_id']) + x['visit'],axis=1)
+    completions = imaging[['completions_id']+icols].groupby(icols).count().reset_index().rename(columns=scan_dict).rename(columns={'completions_id':'Count'})
     completions['Percent'] = round(100 * completions['Count']/(completions['Count'].sum()),1)
     completions = completions.sort_values(by=['Count'], ascending=False)
     return completions
