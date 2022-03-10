@@ -166,7 +166,7 @@ def create_content(sites):
                             ], style={'border':'1px solid black'}),
                         dbc.Row([
                             dbc.Col([
-                                dbc.Tabs(id="tabs", active_tab='tab-completions', children=[
+                                dbc.Tabs(id="tabs", active_tab='tab-overview', children=[
                                     dbc.Tab(label='Overview', tab_id='tab-overview'),
                                     dbc.Tab(label='Completions', tab_id='tab-completions'),
                                     dbc.Tab(label='Pie Charts', tab_id='tab-pie'),
@@ -212,8 +212,8 @@ def serve_layout():
     # try:
     page_layout =  html.Div([
     # change to 'url' before deploy
-            # serve_data_stores('url'),
-            serve_data_stores('local'),
+            serve_data_stores('url'),
+            # serve_data_stores('local'),
             ], className='delay')
 
     # except:
