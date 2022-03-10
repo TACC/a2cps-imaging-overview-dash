@@ -95,6 +95,31 @@ def bar_chart_dataframe(df, mcc_dict, count_col, x_col, color_col = None, facet_
 
     return fig
 
+def datatable_settings_multiindex(df, flatten_char = '_'):
+    ''' Plotly dash datatables do not natively handle multiindex dataframes. This function takes a multiindex column set
+    and generates a flattend column name list for the dataframe, while also structuring the table dictionary to represent the
+    columns in their original multi-level format.
+
+    Function returns the variables datatable_col_list, datatable_data for the columns and data parameters of
+    the dash_table.DataTable'''
+    datatable_col_list = []
+
+    levels = df.columns.nlevels
+    if levels == 1:
+        for i in df.columns:
+            datatable_col_list.append({"name": i, "id": i})
+    else:
+        columns_list = []
+        for i in df.columns:
+            col_id = flatten_char.join(i)
+            datatable_col_list.append({"name": i, "id": col_id})
+            columns_list.append(col_id)
+        df.columns = columns_list
+
+    datatable_data = df.to_dict('records')
+
+    return datatable_col_list, datatable_data
+
 def generate_heat_matrix(df, colors):
     cut = len(df)
     fig = px.imshow(

@@ -17,6 +17,11 @@ from styling import *
 # Bar Chart options
 bar_chart_options = {'None':'None', 'MCC':'mcc', 'Site':'site','Visit':'ses','Scan':'scan'}
 
+# Load local / asset data
+sites_filepath = os.path.join(DATA_PATH,'sites.csv')
+sites_info = pd.read_csv(sites_filepath)
+
+
 # ----------------------------------------------------------------------------
 # APP Settings
 # ----------------------------------------------------------------------------
@@ -69,7 +74,7 @@ def create_image_overview(df):
     ])
     return overview_div
 
-def completions_table(completions):
+def completions_table(completions_cols, completions_data):
     completions_div = [
         dbc.Row([dbc.Col([
             html.H3('Overall completion of scans Y/N for each scan in acquisition order: T1, DWI, REST1, CUFF1, CUFF2, REST2)')
@@ -77,11 +82,13 @@ def completions_table(completions):
         dbc.Row([
             dbc.Col([
                 dt.DataTable(
-                    id='tbl', data=completions.to_dict('records'),
-                    columns=[{"name": i, "id": i} for i in completions.columns],
+                    id='tbl',
+                    columns = completions_cols,
+                    data = completions_data,
                     filter_action="native",
                     sort_action="native",
                     sort_mode="multi",
+                    merge_duplicate_headers=True,
                 ),
             ])
         ]),
@@ -110,88 +117,105 @@ def create_pie_charts(completions):
 def serve_data_stores(source):
     imaging, imaging_source = load_imaging(source)
     qc, qc_source = load_qc(source)
-    completions = get_completions(imaging)
-    imaging_overview = roll_up(imaging)
-    stacked_bar_df = get_stacked_bar_data(qc, 'sub', 'rating', ['site','ses'])
+
+    if imaging.empty or qc.empty:
+        completions = pd.DataFrame()
+        imaging_overview =  pd.DataFrame()
+        stacked_bar_df =  pd.DataFrame()
+        sites = []
+    else:
+        completions = get_completions(imaging)
+        imaging_overview = roll_up(imaging)
+        stacked_bar_df = get_stacked_bar_data(qc, 'sub', 'rating', ['site','ses'])
+        sites = list(imaging.site.unique())
+
     data_dictionary = {
         'imaging': imaging.to_dict('records'),
         'imaging_source': imaging_source,
-        'sites':  list(imaging.site.unique()),
+        'sites': sites,
         'qc': qc.to_dict('records'),
         'qc_source': qc_source,
         'completions': completions.to_dict('records'),
         'imaging_overview' : imaging_overview.to_dict('records'),
 
     }
+
     data_stores = html.Div([
         dcc.Store(id='session_data', storage_type='session', data = data_dictionary),
+
         # html.P('Imaging Source: ' + data_dictionary['imaging_source']),
         # html.P('QC Source: ' + data_dictionary['qc_source']),
-        create_content(list(imaging.site.unique()))
+        create_content(sites)
     ])
     return data_stores
 
 def create_content(sites):
-    content = html.Div([
-                html.Div([
-                    dbc.Row([
-                        dbc.Col([
-                            html.H1('Imaging Overview Report', style={'textAlign': 'center'})
+    if len(sites) > 0:
+        content = html.Div([
+                    html.Div([
+                        dbc.Row([
+                            dbc.Col([
+                                html.H1('Imaging Overview Report', style={'textAlign': 'center'})
+                            ])
+                            ], justify='center', align='center'),
+                        dbc.Row([
+                            dbc.Col([
+                                html.P(date.today().strftime('%B %d, %Y')),
+                                html.P('Version Date: 03/10/22')], width=10),
+                                # dbc.Col([filter_box],width=2)]),
+                            ], style={'border':'1px solid black'}),
+                        dbc.Row([
+                            dbc.Col([
+                                dbc.Tabs(id="tabs", active_tab='tab-completions', children=[
+                                    dbc.Tab(label='Overview', tab_id='tab-overview'),
+                                    dbc.Tab(label='Completions', tab_id='tab-completions'),
+                                    dbc.Tab(label='Pie Charts', tab_id='tab-pie'),
+                                    dbc.Tab(label='Heat Map', tab_id='tab-heatmap'),
+                                ]),
+                            ],width=10),
+                            dbc.Col([
+                                dcc.Dropdown(
+                                    id='dropdown-sites',
+                                    options=[
+                                        {'label': 'All Sites', 'value': (',').join(sites)},
+                                        {'label': 'MCC1', 'value': 'UI,UC,NS'},
+                                        {'label': 'MCC2', 'value': 'UM,WS,SH' },
+                                        {'label': 'MCC1: University of Illinois at Chicago', 'value': 'UI' },
+                                        {'label': 'MCC1: University of Chicago', 'value': 'UC' },
+                                        {'label': 'MCC1: NorthShore', 'value': 'NS' },
+                                        {'label': 'MCC2: University of Michigan', 'value': 'UM' },
+                                        {'label': 'MCC2: Wayne State University (pending)', 'value': 'WS' },
+                                        {'label': 'MCC2: Spectrum Health (pending)', 'value': 'SH' }
+                                    ],
+                                    # value = 'NS'
+                                    multi=False,
+                                    clearable=False,
+                                    value=(',').join(sites)
+                                ),
+                            ], id='dropdown-sites-col',width=2),
+                        ]),
+                        dbc.Row([
+                            dbc.Col([html.Div(id='tab-content')], className='delay')
                         ])
-                        ], justify='center', align='center'),
-                    dbc.Row([
-                        dbc.Col([
-                            html.P(date.today().strftime('%B %d, %Y')),
-                            html.P('Version Date: 03/03/22')], width=10),
-                            # dbc.Col([filter_box],width=2)]),
-                        ], style={'border':'1px solid black'}),
-                    dbc.Row([
-                        dbc.Col([
-                            dbc.Tabs(id="tabs", active_tab='tab-overview', children=[
-                                dbc.Tab(label='Overview', tab_id='tab-overview'),
-                                dbc.Tab(label='Completions', tab_id='tab-completions'),
-                                dbc.Tab(label='Pie Charts', tab_id='tab-pie'),
-                                dbc.Tab(label='Heat Map', tab_id='tab-heatmap'),
-                            ]),
-                        ],width=10),
-                        dbc.Col([
-                            dcc.Dropdown(
-                                id='dropdown-sites',
-                                options=[
-                                    {'label': 'All Sites', 'value': (',').join(sites)},
-                                    {'label': 'MCC1', 'value': 'UI,UC,NS'},
-                                    {'label': 'MCC2', 'value': 'UM,WS,SH' },
-                                    {'label': 'MCC1: University of Illinois at Chicago', 'value': 'UI' },
-                                    {'label': 'MCC1: University of Chicago', 'value': 'UC' },
-                                    {'label': 'MCC1: NorthShore', 'value': 'NS' },
-                                    {'label': 'MCC2: University of Michigan', 'value': 'UM' },
-                                    {'label': 'MCC2: Wayne State University (pending)', 'value': 'WS' },
-                                    {'label': 'MCC2: Spectrum Health (pending)', 'value': 'SH' }
-                                ],
-                                # value = 'NS'
-                                multi=False,
-                                clearable=False,
-                                value=(',').join(sites)
-                            ),
-                        ], id='dropdown-sites-col',width=2),
-                    ]),
-                    dbc.Row([
-                        dbc.Col([html.Div(id='tab-content')])
-                    ])
 
-                ]
-                , style={'border':'1px solid black', 'padding':'10px'}
-            )
+                    ]
+                    , style={'border':'1px solid black', 'padding':'10px'}
+                )
+            ])
+    else:
+        content = html.Div([
+            dbc.Alert("There has been a problem accessing the data API at this time. Please try again in a few minutes.", color="warning")
         ])
     return content
 
 def serve_layout():
     # try:
-    page_layout = html.Div([
+    page_layout =  html.Div([
     # change to 'url' before deploy
-            serve_data_stores('url'),
-            # serve_data_stores('local'),
-    ])
+            # serve_data_stores('url'),
+            serve_data_stores('local'),
+            ], className='delay')
+
     # except:
     #     page_layout = html.Div(['There has been a problem accessing the data for this application.'])
     return page_layout
@@ -243,81 +267,8 @@ def switch_tab(at):
                            clearable=False,
                            value=1
                         ),
-
-
-
-                        #     HIde these when updated
-                        # html.Label('X-axis Category'),
-                        # dcc.Dropdown(
-                        #     id='dropdown-xaxis',
-                        #     options=[
-                        #         {'label': i, 'value': bar_chart_options[i]} for i in bar_chart_options.keys()
-                        #         ],
-                        #     multi=False,
-                        #     clearable=False,
-                        #     value='None'
-                        # ),
-                        # html.Label('Facet Column:'),
-                        # dcc.Dropdown(
-                        #     id='dropdown-facet-col',
-                        #     options=[
-                        #         {'label': i, 'value': bar_chart_options[i]} for i in bar_chart_options.keys()
-                        #         ],
-                        #     multi=False,
-                        #     clearable=False,
-                        #     value='None'
-                        # ),
-                        # html.Label('Facet Row:'),
-                        # dcc.Dropdown(
-                        #     id='dropdown-facet-row',
-                        #     options=[
-                        #         {'label': i, 'value': bar_chart_options[i]} for i in bar_chart_options.keys()
-                        #         ],
-                        #     multi=False,
-                        #     clearable=False,
-                        #     value='None'
-                        # ),
                         ],width=2),
                 ]),
-            # dbc.Row([
-            #     dbc.Col([html.Div(id='graph_stackedbar_div_old')], width=10),
-            #         dbc.Col([
-            #             html.H3('Bar Chart Settings'),
-            #
-            #
-            #             #     HIde these when updated
-            #             html.Label('X-axis Category'),
-            #             dcc.Dropdown(
-            #                 id='dropdown-xaxis',
-            #                 options=[
-            #                     {'label': i, 'value': bar_chart_options[i]} for i in bar_chart_options.keys()
-            #                     ],
-            #                 multi=False,
-            #                 clearable=False,
-            #                 value='None'
-            #             ),
-            #             html.Label('Facet Column:'),
-            #             dcc.Dropdown(
-            #                 id='dropdown-facet-col',
-            #                 options=[
-            #                     {'label': i, 'value': bar_chart_options[i]} for i in bar_chart_options.keys()
-            #                     ],
-            #                 multi=False,
-            #                 clearable=False,
-            #                 value='None'
-            #             ),
-            #             html.Label('Facet Row:'),
-            #             dcc.Dropdown(
-            #                 id='dropdown-facet-row',
-            #                 options=[
-            #                     {'label': i, 'value': bar_chart_options[i]} for i in bar_chart_options.keys()
-            #                     ],
-            #                 multi=False,
-            #                 clearable=False,
-            #                 value='None'
-            #             ),
-            #             ],width=2),
-            #     ]),
         ])
         style = {'display': 'none'}
         return overview, style
@@ -360,11 +311,6 @@ def update_stackedbar(type, visit, chart_selection, data):
     else:
         type = 'Count'
 
-    # if visit:
-    #     visit='split'
-    # else:
-    #     visit='combined'
-
     qc = pd.DataFrame.from_dict(data['qc'])
     count_col='sub'
     color_col = 'rating'
@@ -390,58 +336,6 @@ def update_stackedbar(type, visit, chart_selection, data):
             fig = bar_chart_dataframe(qc, mcc_dict, count_col, x_col, color_col, chart_type=type)
 
     return [html.P(visit), dcc.Graph(id='graph_stackedbar', figure=fig)]
-    # if (x_col and (facet_col or facet_row)) and (x_col == facet_col or x_col == facet_row) or (facet_col and facet_row and facet_col == facet_row):
-    #     kids=[dbc.Alert("Chart dropdown selections can not be the same except for 'None'", color="warning")]
-    # else:
-    #     qc = pd.DataFrame.from_dict(data['qc'])
-    #     count_col='sub'
-    #     color_col = 'rating'
-    #
-    #     fig = bar_chart_dataframe(qc, mcc_dict, count_col, x_col, color_col, facet_col, facet_row = facet_row, chart_type=type)
-    #     kids = [dcc.Graph(id='graph_stackedbar', figure=fig)]
-
-
-# @app.callback(
-#     Output('graph_stackedbar_div_old', 'children'),
-#     Input('toggle_stackedbar', 'value'),
-#     Input('dropdown-xaxis', 'value'),
-#     Input('dropdown-facet-col', 'value'),
-#     Input('dropdown-facet-row', 'value'),
-#     State('session_data', 'data')
-# )
-# def update_stackedbar(type, xaxis, col, row, data):
-#     global mcc_dict
-#     # False = Count and True = Percent
-#     # return json.dumps(mcc_dict)
-#     if type:
-#         type = 'Percent'
-#     else:
-#         type = 'Count'
-#
-#     if xaxis =='None':
-#         x_col = None
-#     else:
-#         x_col = xaxis
-#
-#     if col =='None':
-#         facet_col = None
-#     else:
-#         facet_col = col
-#
-#     if row =='None':
-#         facet_row = None
-#     else:
-#         facet_row = row
-#     if (x_col and (facet_col or facet_row)) and (x_col == facet_col or x_col == facet_row) or (facet_col and facet_row and facet_col == facet_row):
-#         kids=[dbc.Alert("Chart dropdown selections can not be the same except for 'None'", color="warning")]
-#     else:
-#         qc = pd.DataFrame.from_dict(data['qc'])
-#         count_col='sub'
-#         color_col = 'rating'
-#
-#         fig = bar_chart_dataframe(qc, mcc_dict, count_col, x_col, color_col, facet_col, facet_row = facet_row, chart_type=type)
-#         kids = [dcc.Graph(id='graph_stackedbar', figure=fig)]
-#     return kids
 
 
 @app.callback(
@@ -451,9 +345,16 @@ def update_stackedbar(type, visit, chart_selection, data):
 )
 def update_image_report(sites, data):
     imaging = pd.DataFrame.from_dict(data['imaging'])
-    df = imaging[imaging['site'].isin(sites.split(","))]
-    completions = get_completions(df)
-    return completions_table(completions)
+    sites_list = ['ALL', 'MCC1', 'MCC2'] + list(imaging.site.unique())
+    completions = merge_completions(sites_list, imaging, sites_info)
+
+    # Conver tuples to multiindex then prepare data for dash data table
+    completions.columns = pd.MultiIndex.from_tuples(completions.columns)
+    completions_cols, completions_data = datatable_settings_multiindex(completions)
+    ct = completions_table(completions_cols, completions_data)
+    # kids = [html.P(c) for c in list(completions.columns)]
+    # return kids
+    return ct
 
 @app.callback(
     Output('pie_charts', 'children'),

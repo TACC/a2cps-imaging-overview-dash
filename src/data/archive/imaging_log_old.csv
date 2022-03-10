@@ -1,0 +1,312 @@
+﻿site,subject_id,visit,T1 Indicated,T1 Received,DWI Indicated,DWI Received,fMRI Individualized Pressure Indicated,fMRI Individualized Pressure Received,fMRI Standard Pressure Indicated,fMRI Standard Pressure Received,1st Resting State Indicated,1st Resting State Received,2nd Resting State Indicated,2nd Resting State Received,fMRI T1 Tech Rating,dicom,bids,bids_validation,fmriprep_anat,fmriprep_cuff,fmriprep_rest,mriqc_anat,mriqc_cuff,mriqc_rest,qsiprep,Comments,count
+UI,10003,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10003,V3,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10005,V1,Y,Y,N,N,N,N,N,N,N,N,N,N,2,Y,Y,Y,Y,na,na,Y,na,na,na,,1
+UI,10008,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10008,V3,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10009,V1,Y,Y,N,N,N,N,N,N,N,N,N,N,3,Y,Y,Y,Y,na,na,Y,na,na,na,,1
+UI,10010,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10010,V3,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10011,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10011,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10013,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10013,V3,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10014,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10014,V3,Y,Y,Y,Y,N,N,N,N,N,N,N,N,3,Y,Y,Y,Y,na,na,Y,na,na,Y,,1
+UI,10015,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10015,V3,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10017,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10020,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10023,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10023,V3,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10024,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10024,V3,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UI,10026,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10028,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10028,V3,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10029,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10030,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10030,V3,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10031,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10031,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10032,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,N,N,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10032,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,N,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10033,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10033,V3,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10034,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10034,V3,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10035,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10035,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10036,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,N,Y,Y,Y,Y,Uploaded as 50010 (screening ID); Re-uploaded correctly. Duplicated Rest2,1
+UC,10036,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10037,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10037,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10038,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10038,V3,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10040,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10041,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10041,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10042,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,All fMRIs acquired with angulation (x axis rotation based on qform matrix),1
+UI,10044,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10044,V3,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10045,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10045,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10047,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Duplicate Rest1,1
+NS,10047,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10049,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10049,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10050,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Uploaded as 100050 (zip name); PatientID correct but with wrong delimiter,1
+UI,10052,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10052,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10053,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10054,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10054,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10055,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Originally sent with screen ID 50037,1
+UI,10056,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10056,V3,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10058,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10058,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10059,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10059,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10060,V1,Y,Y,Y,Y,N,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,Cuff 1 scan aborted. Partial scan uploaded.,1
+NS,10060,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,orig submitted as NS10063V3.zip; F/U 10/20/21 confirmed it's 10060; renamed zip,1
+NS,10061,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10061,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10062,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10062,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10063,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10063,V3,Y,Y,Y,Y,Y,Y,N,N,Y,Y,N,N,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10064,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10064,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10066,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,N,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10067,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,N,N,,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UC,10067,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10068,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10070,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10070,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10071,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10071,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10072,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10072,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10073,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10073,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,N,Y,Y,,1
+NS,10074,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+NS,10075,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10075,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10076,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,T1w__dup-01 file created.,1
+NS,10076,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10077,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10077,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10080,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10080,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10082,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10082,V3,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+NS,10085,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,T1w__dup-01 file created.,1
+NS,10085,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10086,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UI,10087,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10087,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10088,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10088,V3,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UI,10089,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,N,N,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UI,10089,V3,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UI,10090,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10090,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10092,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10092,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,N,Y,Y,Y,Y,Y,,1
+NS,10093,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10093,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10094,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,T1w__dup-01 file created.,1
+NS,10095,V1,Y,Y,Y,Y,N,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,Patient pressed the emergency squeeze ball 2-2.5 minutes into the personalized cuff scan.,1
+NS,10095,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10097,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10100,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+NS,10101,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10101,V3,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UC,10102,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10102,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10103,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,"CRF states that patient didn't receive cuff, but that all scans were completed; 10/26 site confirmed CUFF run without cuff (as per MOP)",1
+NS,10104,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+NS,10104,V3,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+NS,10105,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+NS,10105,V3,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UI,10106,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,N,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10106,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10107,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10107,V3,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10108,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10109,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10109,V3,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10110,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10111,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10112,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Scanner crashed last 9 seconds not captured,1
+NS,10112,V3,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+NS,10113,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10113,V3,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,N,na,N,Y,na,Y,Y,,1
+NS,10117,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10117,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10118,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10119,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10120,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10121,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10122,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10122,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10123,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10123,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10125,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10125,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,N,Y,Y,Y,Y,Y,,1
+UI,10126,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10127,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10128,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10129,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,N,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10129,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10130,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10130,V3,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10132,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10133,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10134,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UI,10134,V3,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UC,10135,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10137,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+NS,10138,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+NS,10139,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10141,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UI,10144,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10144,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10145,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UC,10147,V1,Y,Y,Y,Y,,N,,N,,N,,N,3,Y,Y,Y,Y,Y,N,Y,N,Y,Y,Scan was aborted after subject reported severe pain before the first resting scan (I don't know what scans were completed but this what I'm assuming).,1
+UI,10149,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10150,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10151,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10153,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10154,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10155,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,N,N,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10156,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10156,V3,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10157,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10158,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UI,10159,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10160,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10161,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+NS,10162,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10163,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+NS,10165,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+NS,10166,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10167,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10168,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10170,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10171,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UI,10173,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10174,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10174,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10175,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10177,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10179,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10180,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+NS,10182,V1,Y,Y,Y,Y,N,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,System crashed after subject pressed emergency squeeze ball. Personalized cuff scan was not completed.,1
+NS,10185,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10188,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,N,N,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10189,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+NS,10190,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,originally submitted/processed as NS10090V1; resent 10/26,1
+NS,10191,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10192,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10194,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10195,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,N,N,2,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UI,10196,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+NS,10197,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+NS,10198,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UI,10200,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10201,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10202,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,N,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10203,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10205,V1,Y,N,Y,N,N,N,N,N,Y,N,Y,N,3,Y,N,N,N,na,N,N,na,N,N,Failed acquisition; site reports reconstruction failed on all but REST2 (and this may be partial) due to scanner issue,1
+NS,10206,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10207,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10209,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10211,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10212,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UI,10213,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10214,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10215,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10216,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,N,N,1,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UI,10218,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10219,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10220,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+NS,10221,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10222,V1,Y,Y,Y,Y,,N,,N,Y,Y,Y,Y,2,Y,Y,Y,Y,N,Y,Y,N,Y,Y,,1
+NS,10223,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10224,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,N,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10231,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,N,N,N,Y,Y,Y,Y,,1
+UI,10232,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10233,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10234,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10235,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10236,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,N,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UC,10237,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10238,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UC,10243,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10246,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10247,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10250,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10255,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+NS,10257,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UI,10261,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10262,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,1,Y,Y,Y,N,na,N,Y,na,Y,Y,,1
+UI,10266,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,N,Y,Y,N,Y,Y,,1
+UI,10267,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,N,Y,1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10269,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10270,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UI,10272,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10275,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UI,10280,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UM,20004,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20004,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Originally sent with (cmb) but fixed by site and resent,1
+UM,20007,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20007,V3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Originally sent with (cmb) but fixed by site and resent,1
+UM,20009,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20012,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,N,N,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20013,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,N,N,2,Y,Y,Y,Y,na,Y,Y,na,Y,Y,PatientName is missing V1 (A2CPS^UM20013),1
+UM,20013,V3,Y,Y,Y,Y,N,N,N,N,Y,Y,N,N,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UM,20016,V1,Y,Y,Y,Y,Y,Y,N,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Pt. hit call button during fMRI standard pressure. Could not tolerate 120mmHg.,1
+UM,20017,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,N,Y,Y,Y,Y,submitted as U20017V1.zip,1
+UM,20017,V3,Y,Y,Y,Y,N,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,N,na,N,Y,na,Y,Y,Cuff 1 scan aborted. Partial scan uploaded.,1
+UM,20018,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,N,N,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,First tonic cuff test stopped midway since participant said it was becoming too much and squeezed emergency ball to stop.,1
+UM,20018,V3,Y,Y,Y,Y,N,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UM,20019,V1,Y,Y,Y,Y,Y,Y,N,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,"2nd cuff test was stopped early, Alternate ""cmb"" style name.",1
+UM,20019,V3,Y,Y,Y,Y,N,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,N,,1
+UM,20020,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,"Alternate ""cmb"" style name: cmb21a2c20020",1
+UM,20021,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,"Alternate ""cmb"" style name",1
+UM,20021,V3,Y,N,Y,N,Y,N,Y,N,Y,N,Y,N,3,N,N,N,N,N,N,N,N,N,N,,1
+UM,20022,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,N,N,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,"Alternate ""cmb"" style name",1
+UM,20023,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,"Alternate ""cmb"" style name",1
+UM,20023,V3,Y,Y,Y,Y,N,N,N,N,Y,Y,N,N,3,Y,Y,Y,N,na,N,N,na,N,Y,,1
+UM,20024,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,na,Y,Y,na,Y,Y,"Alternate ""cmb"" style name",1
+UM,20025,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,"Alternate ""cmb"" style name",1
+UM,20025,V3,Y,N,Y,N,Y,N,Y,N,Y,N,Y,N,3,N,N,N,N,N,N,N,N,N,N,,1
+UM,20026,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20026,V3,Y,N,Y,N,Y,N,Y,N,Y,N,Y,N,3,N,N,N,N,N,N,N,N,N,N,,1
+UM,20027,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20028,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,N,N,2,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UM,20029,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20030,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20031,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,N,Y,Y,Y,Y,,1
+UM,20033,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20034,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20035,V1,Y,Y,Y,Y,Y,Y,N,N,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20036,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,N,Y,Y,Y,Y,,1
+UM,20037,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,N,N,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UM,20038,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20040,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,N,N,1,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UM,20041,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20042,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20043,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20045,V1,Y,Y,Y,Y,N,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,na,Y,Y,na,Y,N,,1
+UM,20046,V1,Y,Y,Y,Y,Y,Y,N,Y,Y,Y,Y,Y,3,Y,Y,Y,N,N,N,N,N,N,N,,1
+UM,20049,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20050,V1,Y,Y,Y,Y,N,N,N,N,Y,Y,N,N,3,Y,Y,Y,Y,na,Y,Y,na,Y,Y,,1
+UM,20052,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20056,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20057,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,2,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20058,V1,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,3,Y,Y,Y,Y,Y,Y,Y,Y,Y,Y,,1
+UM,20059,V1,Y,N,Y,N,Y,N,Y,N,Y,N,Y,N,3,N,N,N,N,N,N,N,N,N,N,,1
+UM,20062,V1,Y,N,Y,N,Y,N,Y,N,Y,N,Y,N,2,N,N,N,N,N,N,N,N,N,N,,1

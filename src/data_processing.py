@@ -26,7 +26,11 @@ def roll_up(imaging):
     df.reset_index(inplace=True)
     return df
 
-def get_completions(imaging):
+# ----------------------------------------------------------------------------
+# Completions
+# ----------------------------------------------------------------------------
+
+def get_completions_old(imaging):
     scan_dict = {'T1 Indicated':'T1',
        'DWI Indicated':'DWI',
        '1st Resting State Indicated':'REST1',
@@ -42,6 +46,60 @@ def get_completions(imaging):
     completions['Percent'] = round(100 * completions['Count']/(completions['Count'].sum()),1)
     completions = completions.sort_values(by=['Count'], ascending=False)
     return completions
+
+def get_completions(df):
+    scan_dict = {'T1 Indicated':'T1',
+       'DWI Indicated':'DWI',
+       '1st Resting State Indicated':'REST1',
+       'fMRI Individualized Pressure Indicated':'CUFF1',
+       'fMRI Standard Pressure Indicated':'CUFF2',
+       '2nd Resting State Indicated':'REST2'}
+
+    icols = list(scan_dict.keys())
+    icols2 = list(scan_dict.values())
+
+    df['completions_id'] = df.apply(lambda x: str(x['subject_id']) + x['visit'],axis=1)
+    completions = df[['completions_id']+icols].groupby(icols).count().reset_index().rename(columns=scan_dict).rename(columns={'completions_id':'Count'})
+    completions['Percent'] = round(100 * completions['Count']/(completions['Count'].sum()),1)
+    completions = completions.sort_values(by=['Count'], ascending=False)
+
+    return completions
+
+def completions_label_site(imaging, site, sites_info):
+    # Get completions data for data subset
+    if site == 'ALL':
+        df = imaging.copy()
+    elif site == 'MCC1':
+        df = imaging[imaging['site'].isin(list(sites_info[sites_info['mcc']==1].site))].copy()
+    elif site == 'MCC2':
+        df = imaging[imaging['site'].isin(list(sites_info[sites_info['mcc']==2].site))].copy()
+    else:
+        df = imaging[imaging['site'] == site].copy()
+    completions = get_completions(df)
+
+    # Convert to multi-index
+    multi_col = []
+    for col in completions.columns[0:6]:
+        t = ('Scan', col)
+        multi_col.append(t)
+    for col in completions.columns[6:]:    
+        t = (site, col)
+        multi_col.append(t)
+    completions.columns = multi_col
+
+    return completions
+
+def merge_completions(sites_list, imaging, sites_info):
+    c = completions_label_site(imaging, sites_list[0], sites_info)
+    for site in sites_list[1:]:
+        c_site = completions_label_site(imaging, site, sites_info)
+        c = c.merge(c_site, how='left', on=list(c.columns[0:6]))
+    c = c.dropna(axis='columns', how='all').fillna(0)
+    return c
+
+# ----------------------------------------------------------------------------
+# Heat matrix
+# ----------------------------------------------------------------------------
 
 def get_heat_matrix_df(qc, site, color_mapping_list):
     color_mapping_df = pd.DataFrame(color_mapping_list)
@@ -82,7 +140,6 @@ def get_stacked_bar_data(df, id_col, metric_col, cat_cols, count_col = None):
 # ----------------------------------------------------------------------------
 # LOAD DATA
 # ----------------------------------------------------------------------------
-
 data_repository = 'https://api.a2cps.org/files/v2/download/public/system/a2cps.storage.community/reports/imaging'
 
 def load_imaging(source='url'):
@@ -94,9 +151,8 @@ def load_imaging(source='url'):
             imaging = pd.read_csv('/'.join([data_repository,'imaging-log-latest.csv']))
             imaging_source = 'url'
         except:
-            imaging = pd.read_csv(os.path.join(DATA_PATH,'imaging_log.csv'))
-            imaging_source = 'local'
-
+            imaging = pd.DataFrame()
+            imaging_source = 'unavailable'
     return imaging, imaging_source
 
 def load_qc(source='url'):
@@ -108,8 +164,8 @@ def load_qc(source='url'):
             qc = pd.read_csv('/'.join([data_repository,'qc-log-latest.csv']))
             qc_source = 'url'
         except:
-            qc = pd.read_csv(os.path.join(DATA_PATH,'qc_log.csv'))
-            qc_source = 'local'
+            qc = pd.DataFrame()
+            qc_source = 'unavailable'
     return qc, qc_source
 
 # imaging, imaging_source = load_imaging()
