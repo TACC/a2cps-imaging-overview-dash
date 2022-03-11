@@ -10,6 +10,7 @@ from dash import Dash, callback, clientside_callback, html, dcc, dash_table, Inp
 from dash.exceptions import PreventUpdate
 
 # Data Visualization
+import plotly.graph_objects as go
 import plotly.express as px
 from styling import *
 
