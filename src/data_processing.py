@@ -62,7 +62,8 @@ def get_completions(df):
     completions = df[['completions_id']+icols].groupby(icols).count().reset_index().rename(columns=scan_dict).rename(columns={'completions_id':'Count'})
     completions['Percent'] = round(100 * completions['Count']/(completions['Count'].sum()),1)
     completions = completions.sort_values(by=['Count'], ascending=False)
-
+    completions.loc[:, ~completions.columns.isin(['Count', 'Percent'])] = completions.loc[:, ~completions.columns.isin(['Count', 'Percent'])].replace([0,1],['N','Y'])
+   
     return completions
 
 def completions_label_site(imaging, site, sites_info):
@@ -82,7 +83,7 @@ def completions_label_site(imaging, site, sites_info):
     for col in completions.columns[0:6]:
         t = ('Scan', col)
         multi_col.append(t)
-    for col in completions.columns[6:]:    
+    for col in completions.columns[6:]:
         t = (site, col)
         multi_col.append(t)
     completions.columns = multi_col

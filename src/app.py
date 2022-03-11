@@ -7,6 +7,8 @@ from dash import Dash, callback, clientside_callback, html, dcc, dash_table as d
 from dash.exceptions import PreventUpdate
 import dash_daq as daq
 
+import plotly.figure_factory as ff
+
 # import local modules
 from config_settings import *
 from data_processing import *
@@ -41,7 +43,40 @@ app = Dash(__name__,
 # ----------------------------------------------------------------------------
 # DASH APP COMPONENT FUNCTIONS
 # ----------------------------------------------------------------------------
-def create_image_overview(df):
+def overview_heatmap(imaging):
+    scan_dict = {'T1 Indicated':'T1',
+       'DWI Indicated':'DWI',
+       '1st Resting State Indicated':'REST1',
+       'fMRI Individualized Pressure Indicated':'CUFF1',
+       'fMRI Standard Pressure Indicated':'CUFF2',
+       '2nd Resting State Indicated':'REST2',
+                }
+
+    icols = list(scan_dict.keys())
+    icols2 = list(scan_dict.values())
+
+    other_cols = ['site', 'subject_id', 'visit']
+    i2 = pd.melt(imaging[other_cols + icols], id_vars=other_cols, value_vars = icols)
+    hm = i2.groupby(['site','variable'])['value'].sum().reset_index()
+
+    subjects = imaging[['subject_id','visit','site']].groupby(['site']).count().reset_index()
+    subjects['Site'] = subjects['site'] + ' [' + subjects['visit'].astype('str') + ']'
+
+    figdf = hm.merge(subjects, how='left', on='site')
+    figdf['normed'] = 100 * figdf['value']/figdf['subject_id']
+    figdf = figdf[['Site','variable','normed']].pivot(index='Site', columns='variable', values='normed')
+    figdf.columns = ['REST1','REST2','DWI','T1','CUFF1','CUFF2']
+    figdf = figdf[['T1','DWI','REST1','CUFF1','CUFF2','REST2']]
+    figdf2 = figdf.applymap(lambda x: str(int(x)) + '%')
+
+    heatmap_fig = ff.create_annotated_heatmap(figdf.to_numpy(),
+                                  x=list(figdf.columns),
+                                     y=list(figdf.index),
+                                     annotation_text=figdf2.to_numpy(), colorscale='gray')
+
+    return heatmap_fig
+
+def create_image_overview(imaging_overview):
     overview_div = html.Div([
         dbc.Row([dbc.Col([
             html.H3('Overview')
@@ -49,8 +84,8 @@ def create_image_overview(df):
         dbc.Row([
             dbc.Col([
                 dt.DataTable(
-                    id='tbl-overview', data=df.to_dict('records'),
-                    columns=[{"name": i, "id": i} for i in df.columns],
+                    id='tbl-overview', data=imaging_overview.to_dict('records'),
+                    columns=[{"name": i, "id": i} for i in imaging_overview.columns],
                     style_data_conditional=[
                         {
                             'if': {
@@ -61,7 +96,7 @@ def create_image_overview(df):
                         },
                         {
                             'if': {
-                                'row_index': df.index[df['site']=='All Sites'],
+                                'row_index': imaging_overview.index[imaging_overview['site']=='All Sites'],
                             },
                             'backgroundColor': 'blue',
                             'color': 'white'
@@ -69,13 +104,24 @@ def create_image_overview(df):
                     ]
 
                 ),
-            ], width = 6)
+            ],width=6),
+
         ]),
+
     ])
     return overview_div
 
-def completions_table(completions_cols, completions_data):
+def completions_div(completions_cols, completions_data, imaging):
     completions_div = [
+        dbc.Row([dbc.Col([
+            html.H3('Percent of imaged subjects completing a particular scan by site')
+        ])]),
+        dbc.Row([
+            dbc.Col([
+                # html.Div(overview_heatmap(imaging))
+                dcc.Graph(id='graph-overview-heatmap', figure = overview_heatmap(imaging))
+            ]),
+        ]),
         dbc.Row([dbc.Col([
             html.H3('Overall completion of scans Y/N for each scan in acquisition order: T1, DWI, REST1, CUFF1, CUFF2, REST2)')
         ])]),
@@ -212,8 +258,8 @@ def serve_layout():
     # try:
     page_layout =  html.Div([
     # change to 'url' before deploy
-            serve_data_stores('url'),
-            # serve_data_stores('local'),
+            # serve_data_stores('url'),
+            serve_data_stores('local'),
             ], className='delay')
 
     # except:
@@ -234,7 +280,7 @@ def switch_tab(at):
     if at == "tab-overview":
         overview = html.Div([
             dbc.Row([
-                dbc.Col([html.Div(id='overview_div')], width=8),
+                dbc.Col([html.Div(id='overview_div')])
 
             ]),
             dbc.Row([
@@ -292,7 +338,8 @@ def switch_tab(at):
     Input('session_data', 'data')
 )
 def update_overview_section(data):
-    return create_image_overview(pd.DataFrame.from_dict(data['imaging_overview']))
+    imaging_overview = pd.DataFrame.from_dict(data['imaging_overview'])
+    return create_image_overview(imaging_overview)
 
 
 @app.callback(
@@ -337,7 +384,6 @@ def update_stackedbar(type, visit, chart_selection, data):
 
     return [html.P(visit), dcc.Graph(id='graph_stackedbar', figure=fig)]
 
-
 @app.callback(
     Output('completions_section', 'children'),
     Input('dropdown-sites', 'value'),
@@ -351,7 +397,7 @@ def update_image_report(sites, data):
     # Conver tuples to multiindex then prepare data for dash data table
     completions.columns = pd.MultiIndex.from_tuples(completions.columns)
     completions_cols, completions_data = datatable_settings_multiindex(completions)
-    ct = completions_table(completions_cols, completions_data)
+    ct = completions_div(completions_cols, completions_data, imaging)
     # kids = [html.P(c) for c in list(completions.columns)]
     # return kids
     return ct
