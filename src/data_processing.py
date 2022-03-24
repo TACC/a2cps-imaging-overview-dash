@@ -13,9 +13,83 @@ from datetime import date
 from datetime import datetime, timedelta
 from config_settings import *
 
+# ----------------------------------------------------------------------------
+# LOAD DATA
+# ----------------------------------------------------------------------------
+def load_imaging(url_data_path, local_data_path, source='url'):
+    if source == 'local':
+        imaging = pd.read_csv(os.path.join(local_data_path,'imaging_log.csv'))
+        imaging_source = 'local'
+    else:
+        try:
+            imaging = pd.read_csv('/'.join([url_data_path,'imaging-log-latest.csv']))
+            imaging_source = 'url'
+        except:
+            imaging = pd.DataFrame()
+            imaging_source = 'unavailable'
+    return imaging, imaging_source
+
+def load_qc(url_data_path, local_data_path, source='url'):
+    if source == 'local':
+        qc = pd.read_csv(os.path.join(local_data_path,'qc_log.csv'))
+        qc_source = 'local'
+    else:
+        try:
+            qc = pd.read_csv('/'.join([url_data_path,'qc-log-latest.csv']))
+            qc_source = 'url'
+        except:
+            qc = pd.DataFrame()
+            qc_source = 'unavailable'
+    return qc, qc_source
 
 # ----------------------------------------------------------------------------
-# FUNCTIONS
+# Discrepancies Analysis
+# ----------------------------------------------------------------------------
+
+def get_indicated_received_discrepancy(imaging_dataframe, validation_column = 'bids_validation', validation_value = 1):
+    """The get_indicated_received_discrepancy(imaging_dataframe) function takes the imaging log data frame and lengthens the
+    table to convert the scan into a variable while preserving columns for the indicated and received value of each scan."""
+    df = imaging_dataframe.copy()
+    # if validation_column is not None, filter dataframe to only those rows where the validation columns == validation value
+    if validation_column is not None:
+        df = df[df[validation_column]==validation_value]
+
+    # Select columns, and create long dataframes from those columns, pivoting the scan into a variable
+    # Select and pivot indicated columns
+    indicated_cols = ['site','subject_id','visit','T1 Indicated',
+           'DWI Indicated',
+           'fMRI Individualized Pressure Indicated',
+           'fMRI Standard Pressure Indicated',
+           '1st Resting State Indicated',
+           '2nd Resting State Indicated']
+
+    indicated = df[indicated_cols]
+    indicated.columns = ['site','subject_id','visit','T1w','DWI','CUFF1','CUFF2','REST1','REST2']
+    indicated = pd.melt(indicated, id_vars=['site','subject_id','visit'], value_vars = ['T1w','DWI','CUFF1','CUFF2','REST1','REST2'])
+    indicated.columns = ['Site', 'Subject', 'Visit', 'Scan', 'Value']
+
+    # Select and pivot received_cols columns
+    received_cols = ['site','subject_id','visit','T1 Received',
+       'DWI Received',
+       'fMRI Individualized Pressure Received',
+       'fMRI Standard Pressure Received',
+       '1st Resting State Received',
+       '2nd Resting State Received']
+
+    received = df[received_cols]
+    received.columns = ['site','subject_id','visit','T1w','DWI','CUFF1','CUFF2','REST1','REST2']
+    received = pd.melt(received, id_vars=['site','subject_id','visit'], value_vars = ['T1w','DWI','CUFF1','CUFF2','REST1','REST2'])
+    received.columns = ['Site', 'Subject', 'Visit', 'Scan', 'Value']
+
+    # Merge the indicated and received dataframes into a single dataframe
+    combined = pd.merge(indicated, received, how='outer', on=['Site', 'Subject', 'Visit', 'Scan'])
+    combined.columns = ['Site', 'Subject', 'Visit', 'Scan','Indicated','Received']
+
+    return combined
+
+
+# ----------------------------------------------------------------------------
+# Imaging Overview
 # ----------------------------------------------------------------------------
 def roll_up(imaging):
     cols = ['site','visit','subject_id']
@@ -29,24 +103,6 @@ def roll_up(imaging):
 # ----------------------------------------------------------------------------
 # Completions
 # ----------------------------------------------------------------------------
-
-def get_completions_old(imaging):
-    scan_dict = {'T1 Indicated':'T1',
-       'DWI Indicated':'DWI',
-       '1st Resting State Indicated':'REST1',
-       'fMRI Individualized Pressure Indicated':'CUFF1',
-       'fMRI Standard Pressure Indicated':'CUFF2',
-       '2nd Resting State Indicated':'REST2'}
-
-    icols = list(scan_dict.keys())
-    icols2 = list(scan_dict.values())
-
-    imaging['completions_id'] = imaging.apply(lambda x: str(x['subject_id']) + x['visit'],axis=1)
-    completions = imaging[['completions_id']+icols].groupby(icols).count().reset_index().rename(columns=scan_dict).rename(columns={'completions_id':'Count'})
-    completions['Percent'] = round(100 * completions['Count']/(completions['Count'].sum()),1)
-    completions = completions.sort_values(by=['Count'], ascending=False)
-    return completions
-
 def get_completions(df):
     scan_dict = {'T1 Indicated':'T1',
        'DWI Indicated':'DWI',
@@ -63,7 +119,7 @@ def get_completions(df):
     completions['Percent'] = round(100 * completions['Count']/(completions['Count'].sum()),1)
     completions = completions.sort_values(by=['Count'], ascending=False)
     completions.loc[:, ~completions.columns.isin(['Count', 'Percent'])] = completions.loc[:, ~completions.columns.isin(['Count', 'Percent'])].replace([0,1],['N','Y'])
-   
+
     return completions
 
 def completions_label_site(imaging, site, sites_info):
@@ -135,66 +191,3 @@ def get_stacked_bar_data(df, id_col, metric_col, cat_cols, count_col = None):
     sb_grouped['Total N'] = sb_grouped.groupby(cat_cols)[count_col].transform('sum')
     sb_grouped['%'] = 100 * sb_grouped[count_col] / sb_grouped['Total N']
     return sb_grouped
-
-
-
-# ----------------------------------------------------------------------------
-# LOAD DATA
-# ----------------------------------------------------------------------------
-data_repository = 'https://api.a2cps.org/files/v2/download/public/system/a2cps.storage.community/reports/imaging'
-
-def load_imaging(source='url'):
-    if source == 'local':
-        imaging = pd.read_csv(os.path.join(DATA_PATH,'imaging_log.csv'))
-        imaging_source = 'local'
-    else:
-        try:
-            imaging = pd.read_csv('/'.join([data_repository,'imaging-log-latest.csv']))
-            imaging_source = 'url'
-        except:
-            imaging = pd.DataFrame()
-            imaging_source = 'unavailable'
-    return imaging, imaging_source
-
-def load_qc(source='url'):
-    if source == 'local':
-        qc = pd.read_csv(os.path.join(DATA_PATH,'qc_log.csv'))
-        qc_source = 'local'
-    else:
-        try:
-            qc = pd.read_csv('/'.join([data_repository,'qc-log-latest.csv']))
-            qc_source = 'url'
-        except:
-            qc = pd.DataFrame()
-            qc_source = 'unavailable'
-    return qc, qc_source
-
-# imaging, imaging_source = load_imaging()
-# qc, qc_source = load_qc()
-
-# sites = list(imaging.site.unique())
-
-
-# ----------------------------------------------------------------------------
-# PROCESS DATA
-# ----------------------------------------------------------------------------
-# completions = get_completions(imaging)
-# imaging_overview = roll_up(imaging)
-mcc_dict = {'mcc': [1,1,1,2,2,2],
-            'site':['UI','UC','NS','UM', 'WS','SH'],
-            'site_facet': [1,2,3,1,2,3]
-            }
-
-
-scan_dict = {'T1 Received':'T1',
-   'DWI Received':'DWI',
-   '1st Resting State Received':'REST1',
-   'fMRI Individualized Pressure Received':'CUFF1',
-   'fMRI Standard Pressure Received':'CUFF2',
-   '2nd Resting State Received':'REST2'}
-
-icols = list(scan_dict.keys())
-icols2 = list(scan_dict.values())
-
-color_mapping_list = [(0.0, 'white'),(0.1, 'lightgrey'),(0.25, 'red'),(0.5, 'orange'),(0.75, 'yellow'),(1.0, 'green')]
-# stacked_bar_df = get_stacked_bar_data(qc, 'sub', 'rating', ['site','ses'])

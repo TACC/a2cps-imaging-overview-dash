@@ -25,6 +25,29 @@ sites_info = pd.read_csv(sites_filepath)
 
 
 # ----------------------------------------------------------------------------
+# PROCESS DATA
+# ----------------------------------------------------------------------------
+# completions = get_completions(imaging)
+# imaging_overview = roll_up(imaging)
+mcc_dict = {'mcc': [1,1,1,2,2,2],
+            'site':['UI','UC','NS','UM', 'WS','SH'],
+            'site_facet': [1,2,3,1,2,3]
+            }
+
+
+scan_dict = {'T1 Received':'T1',
+   'DWI Received':'DWI',
+   '1st Resting State Received':'REST1',
+   'fMRI Individualized Pressure Received':'CUFF1',
+   'fMRI Standard Pressure Received':'CUFF2',
+   '2nd Resting State Received':'REST2'}
+
+icols = list(scan_dict.keys())
+icols2 = list(scan_dict.values())
+
+color_mapping_list = [(0.0, 'white'),(0.1, 'lightgrey'),(0.25, 'red'),(0.5, 'orange'),(0.75, 'yellow'),(1.0, 'green')]
+
+# ----------------------------------------------------------------------------
 # APP Settings
 # ----------------------------------------------------------------------------
 
@@ -38,7 +61,34 @@ app = Dash(__name__,
                 suppress_callback_exceptions=True
                 )
 
+# ----------------------------------------------------------------------------
+# DASH HTML COMPONENTS
+# ----------------------------------------------------------------------------
 
+offcanvas_content = html.Div([
+    html.Div([
+        html.P([' '], style={'background-color':'ForestGreen', 'height': '20px', 'width':'20px','float':'left'}),
+        html.P(['no known issues'], style={'padding-left': '30px', 'margin': '0px'})
+    ]),
+    html.Div([
+        html.P([' '], style={'background-color':'Gold', 'height': '20px', 'width':'20px','float':'left', 'clear':'both'}),
+        html.P(['minor variations/issues; correctable'], style={'padding-left': '30px', 'margin': '0px'})
+    ]),
+    html.Div([
+        html.P([' '], style={'background-color':'FireBrick', 'height': '20px', 'width':'20px','float':'left', 'clear':'both'}),
+        html.P(['significant variations/issues; not expected to be usable'], style={'padding-left': '30px', 'margin': '0px'})
+    ]),
+])
+
+offcanvas = html.Div([
+    dbc.Button("Legend", id="open-offcanvas", n_clicks=0),
+    dbc.Offcanvas(
+        offcanvas_content,
+        id="offcanvas",
+        title="Title",
+        is_open=False,
+    ),
+])
 
 # ----------------------------------------------------------------------------
 # DASH APP COMPONENT FUNCTIONS
@@ -160,18 +210,20 @@ def create_pie_charts(completions):
 # ----------------------------------------------------------------------------
 # DASH APP LAYOUT FUNCTION
 # ----------------------------------------------------------------------------
-def serve_data_stores(source):
-    imaging, imaging_source = load_imaging(source)
-    qc, qc_source = load_qc(source)
+def serve_data_stores(url_data_path, local_data_path, source):
+    imaging, imaging_source = load_imaging(url_data_path, local_data_path, source)
+    qc, qc_source = load_qc(url_data_path, local_data_path, source)
 
     if imaging.empty or qc.empty:
         completions = pd.DataFrame()
         imaging_overview =  pd.DataFrame()
+        indicated_received =  pd.DataFrame()
         stacked_bar_df =  pd.DataFrame()
         sites = []
     else:
         completions = get_completions(imaging)
         imaging_overview = roll_up(imaging)
+        indicated_received = get_indicated_received_discrepancy(imaging)
         stacked_bar_df = get_stacked_bar_data(qc, 'sub', 'rating', ['site','ses'])
         sites = list(imaging.site.unique())
 
@@ -183,7 +235,7 @@ def serve_data_stores(source):
         'qc_source': qc_source,
         'completions': completions.to_dict('records'),
         'imaging_overview' : imaging_overview.to_dict('records'),
-
+        'indicated_received' : indicated_received.to_dict('records'),
     }
 
     data_stores = html.Div([
@@ -207,13 +259,30 @@ def create_content(sites):
                         dbc.Row([
                             dbc.Col([
                                 html.P(date.today().strftime('%B %d, %Y')),
-                                html.P('Version Date: 03/10/22')], width=10),
-                                # dbc.Col([filter_box],width=2)]),
-                            ], style={'border':'1px solid black'}),
+                                html.P('Version Date: 03/10/22')],
+                            width=10),
+                            dbc.Col([
+                                # offcanvas
+                                html.Div([
+                                    html.P([' '], style={'background-color':'ForestGreen', 'height': '20px', 'width':'20px','float':'left'}),
+                                    html.P(['no known issues'], style={'padding-left': '30px', 'margin': '0px'})
+                                ]),
+                                    html.Div([
+                                        html.P([' '], style={'background-color':'Gold', 'height': '20px', 'width':'20px','float':'left', 'clear':'both'}),
+                                        html.P(['minor variations/issues; correctable'], style={'padding-left': '30px', 'margin': '0px'})
+                                    ]),
+                                    html.Div([
+                                        html.P([' '], style={'background-color':'FireBrick', 'height': '20px', 'width':'20px','float':'left', 'clear':'both'}),
+                                        html.P(['significant variations/issues; not expected to be usable'], style={'padding-left': '30px', 'margin': '0px'})
+                                    ]),
+                            ],width=2),
+                        ], style={'border':'1px solid black'}),
+
                         dbc.Row([
                             dbc.Col([
                                 dbc.Tabs(id="tabs", active_tab='tab-overview', children=[
                                     dbc.Tab(label='Overview', tab_id='tab-overview'),
+                                    dbc.Tab(label='Discrepancies', tab_id='tab-discrepancies'),
                                     dbc.Tab(label='Completions', tab_id='tab-completions'),
                                     dbc.Tab(label='Pie Charts', tab_id='tab-pie'),
                                     dbc.Tab(label='Heat Map', tab_id='tab-heatmap'),
@@ -259,7 +328,7 @@ def serve_layout():
     page_layout =  html.Div([
     # change to 'url' before deploy
             # serve_data_stores('url'),
-            serve_data_stores('local'),
+            serve_data_stores(data_url_root, DATA_PATH, 'local'),
             ], className='delay')
 
     # except:
@@ -272,6 +341,16 @@ app.layout = serve_layout
 # ----------------------------------------------------------------------------
 # DATA CALLBACKS
 # ----------------------------------------------------------------------------
+# @app.callback(
+#     Output("offcanvas", "is_open"),
+#     Input("open-offcanvas", "n_clicks"),
+#     [State("offcanvas", "is_open")],
+# )
+# def toggle_offcanvas(n1, is_open):
+#     if n1:
+#         return not is_open
+#     return is_open
+
 
 @app.callback(Output("tab-content", "children"),
     Output('dropdown-sites-col','style'),
@@ -281,7 +360,6 @@ def switch_tab(at):
         overview = html.Div([
             dbc.Row([
                 dbc.Col([html.Div(id='overview_div')])
-
             ]),
             dbc.Row([
                 dbc.Col([html.Div(id='graph_stackedbar_div')], width=10),
@@ -318,6 +396,13 @@ def switch_tab(at):
         ])
         style = {'display': 'none'}
         return overview, style
+    elif at == "tab-discrepancies":
+        discrepancies = html.Div([
+            dbc.Row([
+                dbc.Col([html.Div(id='discrepancies_section')])
+            ]),
+        ])
+        return discrepancies, {'display': 'block'}
     elif at == "tab-completions":
         completions = html.Div([
                 html.Div(id='completions_section')
@@ -340,6 +425,29 @@ def switch_tab(at):
 def update_overview_section(data):
     imaging_overview = pd.DataFrame.from_dict(data['imaging_overview'])
     return create_image_overview(imaging_overview)
+
+@app.callback(
+    Output('discrepancies_section', 'children'),
+    Input('session_data', 'data')
+)
+def update_overview_section(data):
+     indicated_received = pd.DataFrame.from_dict(data['indicated_received'])
+     mismatch_ir = indicated_received[indicated_received['Indicated'] != indicated_received['Received']].sort_values(['Site','Subject','Visit','Scan','Indicated'])
+     indicated_received_table = dt.DataTable(
+                    id='tbl-indicated_received', data=mismatch_ir.to_dict('records'),
+                    columns=[{"name": i, "id": i} for i in mismatch_ir.columns],
+                    filter_action="native",
+                    sort_action="native",
+                    sort_mode="multi",
+                    )
+
+     discrepancies_div = html.Div([
+            dbc.Col([
+                html.H3("Scans with a mismatch between 'Indicated' and 'Received'"),
+                indicated_received_table
+            ],width=6),
+     ])
+     return discrepancies_div
 
 
 @app.callback(
