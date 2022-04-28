@@ -3,12 +3,30 @@
 ---
 version: "3"
 services:
+  a2cps_datastore:
+    image: taccdash/a2cps-datastore:latest
+    command: ["gunicorn", "-b :8050",  "-t 90", "app:app"]
+    networks:
+      - datastore_net
   a2cps_imaging_overview_dash:
     build: .
     ports:
       - 8050:8050
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    networks:
+      - datastore_net
     volumes:
       - ./src/:/app/
 #   env_file: local.env
     container_name: a2cps_imaging_overview_dash
     command: [ "gunicorn", "-b", ":8050", "--reload", "app:server" ]
+
+networks:
+  datastore_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+          - subnet: 172.16.238.0/24
