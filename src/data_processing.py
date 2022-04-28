@@ -18,7 +18,7 @@ from config_settings import *
 # ----------------------------------------------------------------------------
 def load_imaging(url_data_path, local_data_path, source='url'):
     if source == 'local':
-        imaging = pd.read_csv(os.path.join(local_data_path,'imaging_log.csv'))
+        imaging = pd.read_csv(os.path.join(local_data_path,'imaging-log-latest.csv'))
         imaging_source = 'local'
     else:
         try:
@@ -31,7 +31,7 @@ def load_imaging(url_data_path, local_data_path, source='url'):
 
 def load_qc(url_data_path, local_data_path, source='url'):
     if source == 'local':
-        qc = pd.read_csv(os.path.join(local_data_path,'qc_log.csv'))
+        qc = pd.read_csv(os.path.join(local_data_path,'qc-log-latest.csv'))
         qc_source = 'local'
     else:
         try:
