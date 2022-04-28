@@ -16,23 +16,80 @@ from config_settings import *
 # ----------------------------------------------------------------------------
 # LOAD DATA
 # ----------------------------------------------------------------------------
-imaging_datafile = 'imaging_log.csv'
-imaging_data_filepath = os.path.join(DATA_PATH,imaging_datafile)
+def load_imaging(url_data_path, local_data_path, source='url'):
+    if source == 'local':
+        imaging = pd.read_csv(os.path.join(local_data_path,'imaging_log.csv'))
+        imaging_source = 'local'
+    else:
+        try:
+            imaging = pd.read_csv('/'.join([url_data_path,'imaging-log-latest.csv']))
+            imaging_source = 'url'
+        except:
+            imaging = pd.DataFrame()
+            imaging_source = 'unavailable'
+    return imaging, imaging_source
 
-qc_datafile = 'qc_log.csv'
-qc_data_filepath = os.path.join(DATA_PATH,qc_datafile)
-
-bold_datafile = 'group_bold.csv'
-bold_data_filepath = os.path.join(DATA_PATH,bold_datafile)
-
-imaging = pd.read_csv(imaging_data_filepath)
-qc = pd.read_csv(qc_data_filepath)
-bold = pd.read_csv(bold_data_filepath)
-
-sites = list(imaging.site.unique())
+def load_qc(url_data_path, local_data_path, source='url'):
+    if source == 'local':
+        qc = pd.read_csv(os.path.join(local_data_path,'qc_log.csv'))
+        qc_source = 'local'
+    else:
+        try:
+            qc = pd.read_csv('/'.join([url_data_path,'qc-log-latest.csv']))
+            qc_source = 'url'
+        except:
+            qc = pd.DataFrame()
+            qc_source = 'unavailable'
+    return qc, qc_source
 
 # ----------------------------------------------------------------------------
-# FUNCTIONS
+# Discrepancies Analysis
+# ----------------------------------------------------------------------------
+
+def get_indicated_received_discrepancy(imaging_dataframe, validation_column = 'bids_validation', validation_value = 1):
+    """The get_indicated_received_discrepancy(imaging_dataframe) function takes the imaging log data frame and lengthens the
+    table to convert the scan into a variable while preserving columns for the indicated and received value of each scan."""
+    df = imaging_dataframe.copy()
+    # if validation_column is not None, filter dataframe to only those rows where the validation columns == validation value
+    if validation_column is not None:
+        df = df[df[validation_column]==validation_value]
+
+    # Select columns, and create long dataframes from those columns, pivoting the scan into a variable
+    # Select and pivot indicated columns
+    indicated_cols = ['site','subject_id','visit','T1 Indicated',
+           'DWI Indicated',
+           'fMRI Individualized Pressure Indicated',
+           'fMRI Standard Pressure Indicated',
+           '1st Resting State Indicated',
+           '2nd Resting State Indicated']
+
+    indicated = df[indicated_cols]
+    indicated.columns = ['site','subject_id','visit','T1w','DWI','CUFF1','CUFF2','REST1','REST2']
+    indicated = pd.melt(indicated, id_vars=['site','subject_id','visit'], value_vars = ['T1w','DWI','CUFF1','CUFF2','REST1','REST2'])
+    indicated.columns = ['Site', 'Subject', 'Visit', 'Scan', 'Value']
+
+    # Select and pivot received_cols columns
+    received_cols = ['site','subject_id','visit','T1 Received',
+       'DWI Received',
+       'fMRI Individualized Pressure Received',
+       'fMRI Standard Pressure Received',
+       '1st Resting State Received',
+       '2nd Resting State Received']
+
+    received = df[received_cols]
+    received.columns = ['site','subject_id','visit','T1w','DWI','CUFF1','CUFF2','REST1','REST2']
+    received = pd.melt(received, id_vars=['site','subject_id','visit'], value_vars = ['T1w','DWI','CUFF1','CUFF2','REST1','REST2'])
+    received.columns = ['Site', 'Subject', 'Visit', 'Scan', 'Value']
+
+    # Merge the indicated and received dataframes into a single dataframe
+    combined = pd.merge(indicated, received, how='outer', on=['Site', 'Subject', 'Visit', 'Scan'])
+    combined.columns = ['Site', 'Subject', 'Visit', 'Scan','Indicated','Received']
+
+    return combined
+
+
+# ----------------------------------------------------------------------------
+# Imaging Overview
 # ----------------------------------------------------------------------------
 def roll_up(imaging):
     cols = ['site','visit','subject_id']
@@ -43,34 +100,94 @@ def roll_up(imaging):
     df.reset_index(inplace=True)
     return df
 
-def get_completions(imaging):
-    scan_dict = {'T1 Received':'T1',
-       'DWI Received':'DWI',
-       '1st Resting State Received':'REST1',
-       'fMRI Individualized Pressure Received':'CUFF1',
-       'fMRI Standard Pressure Received':'CUFF2',
-       '2nd Resting State Received':'REST2'}
+# ----------------------------------------------------------------------------
+# Completions
+# ----------------------------------------------------------------------------
+def get_completions(df):
+    scan_dict = {'T1 Indicated':'T1',
+       'DWI Indicated':'DWI',
+       '1st Resting State Indicated':'REST1',
+       'fMRI Individualized Pressure Indicated':'CUFF1',
+       'fMRI Standard Pressure Indicated':'CUFF2',
+       '2nd Resting State Indicated':'REST2'}
 
     icols = list(scan_dict.keys())
     icols2 = list(scan_dict.values())
 
-    completions = imaging[['subject_id']+icols].groupby(icols).count().reset_index().rename(columns=scan_dict).rename(columns={'subject_id':'Count'})
+    df['completions_id'] = df.apply(lambda x: str(x['subject_id']) + x['visit'],axis=1)
+    completions = df[['completions_id']+icols].groupby(icols).count().reset_index().rename(columns=scan_dict).rename(columns={'completions_id':'Count'})
     completions['Percent'] = round(100 * completions['Count']/(completions['Count'].sum()),1)
     completions = completions.sort_values(by=['Count'], ascending=False)
+    completions.loc[:, ~completions.columns.isin(['Count', 'Percent'])] = completions.loc[:, ~completions.columns.isin(['Count', 'Percent'])].replace([0,1],['N','Y'])
+
     return completions
 
-# ----------------------------------------------------------------------------
-# PROCESS DATA
-# ----------------------------------------------------------------------------
-completions = get_completions(imaging)
-imaging_overview = roll_up(imaging)
+def completions_label_site(imaging, site, sites_info):
+    # Get completions data for data subset
+    if site == 'ALL':
+        df = imaging.copy()
+    elif site == 'MCC1':
+        df = imaging[imaging['site'].isin(list(sites_info[sites_info['mcc']==1].site))].copy()
+    elif site == 'MCC2':
+        df = imaging[imaging['site'].isin(list(sites_info[sites_info['mcc']==2].site))].copy()
+    else:
+        df = imaging[imaging['site'] == site].copy()
+    completions = get_completions(df)
 
-scan_dict = {'T1 Received':'T1',
-   'DWI Received':'DWI',
-   '1st Resting State Received':'REST1',
-   'fMRI Individualized Pressure Received':'CUFF1',
-   'fMRI Standard Pressure Received':'CUFF2',
-   '2nd Resting State Received':'REST2'}
+    # Convert to multi-index
+    multi_col = []
+    for col in completions.columns[0:6]:
+        t = ('Scan', col)
+        multi_col.append(t)
+    for col in completions.columns[6:]:
+        t = (site, col)
+        multi_col.append(t)
+    completions.columns = multi_col
 
-icols = list(scan_dict.keys())
-icols2 = list(scan_dict.values())
+    return completions
+
+def merge_completions(sites_list, imaging, sites_info):
+    c = completions_label_site(imaging, sites_list[0], sites_info)
+    for site in sites_list[1:]:
+        c_site = completions_label_site(imaging, site, sites_info)
+        c = c.merge(c_site, how='left', on=list(c.columns[0:6]))
+    c = c.dropna(axis='columns', how='all').fillna(0)
+    return c
+
+# ----------------------------------------------------------------------------
+# Heat matrix
+# ----------------------------------------------------------------------------
+
+def get_heat_matrix_df(qc, site, color_mapping_list):
+    color_mapping_df = pd.DataFrame(color_mapping_list)
+    color_mapping_df.columns= ['value','color']
+    qc_cols = ['sub','ses', 'scan','rating']
+    q = qc[(qc.site == site)][qc_cols]
+    if len(q) >0:
+        q['sub'] = q['sub'].astype(str)
+        q2 = q.merge(color_mapping_df, how='left', left_on='rating', right_on='color')
+        q3 = q2.sort_values(['sub','ses','scan']).drop_duplicates(['sub','ses','scan'],keep='last')
+        q3['Scan'] = q3['ses'] + '-' + q3['scan']
+        q3_matrix = q3.pivot(index='sub', columns = 'Scan', values = 'value').fillna(0)
+        q3_matrix_cols = ['V1-T1w', 'V1-CUFF1', 'V1-CUFF2', 'V1-REST1', 'V1-REST2',
+                 'V3-T1w', 'V3-CUFF1', 'V3-CUFF2', 'V3-REST1', 'V3-REST2']
+        matrix_df = q3_matrix[q3_matrix_cols]
+        matrix_df.insert(5, "", [0.1] * len(matrix_df))
+        matrix_df.columns.name = None
+        matrix_df.index.name = None
+    else:
+        matrix_df = pd.DataFrame()
+    return matrix_df
+
+def get_stacked_bar_data(df, id_col, metric_col, cat_cols, count_col = None):
+    if count_col:
+        sb = df[cat_cols + [metric_col, id_col, count_col]].copy()
+    else:
+        count_col = 'count'
+        sb = df[cat_cols + [metric_col, id_col]].copy()
+        sb[count_col] = 1
+    sb_grouped = sb[cat_cols+[metric_col, count_col]].groupby(cat_cols+[metric_col]).count()
+    sb_grouped.reset_index(inplace=True)
+    sb_grouped['Total N'] = sb_grouped.groupby(cat_cols)[count_col].transform('sum')
+    sb_grouped['%'] = 100 * sb_grouped[count_col] / sb_grouped['Total N']
+    return sb_grouped
