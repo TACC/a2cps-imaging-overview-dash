@@ -7,6 +7,8 @@ import pathlib # file paths
 DATA_PATH = pathlib.Path(__file__).parent.joinpath("data")
 ASSETS_PATH = pathlib.Path(__file__).parent.joinpath("assets", "/assets")
 REQUESTS_PATHNAME_PREFIX = os.environ.get("REQUESTS_PATHNAME_PREFIX", "/")
+DATASTORE_URL = os.environ.get("DATASTORE_URL","http://a2cps_datastore:8050/api")
+print("DATASTORE_URL:", DATASTORE_URL)
 
 data_url_root ='https://api.a2cps.org/files/v2/download/public/system/a2cps.storage.community/reports/imaging'
 # data_repository = 'https://api.a2cps.org/files/v2/download/public/system/a2cps.storage.community/reports/imaging'

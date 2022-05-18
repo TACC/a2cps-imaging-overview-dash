@@ -210,6 +210,67 @@ def create_pie_charts(completions):
 # ----------------------------------------------------------------------------
 # DASH APP LAYOUT FUNCTION
 # ----------------------------------------------------------------------------
+def get_imaging_api():
+    print('in api')
+    try:
+        # datastore_data = requests.get(f'{DATASTORE_URL}/imaging')
+        datastore_data = requests.get('http://a2cps_datastore:8050/api/imaging')
+
+        print(datastore_data)
+        print(datastore_data.status_code)
+        imaging_api_data = datastore_data.json()
+    except :
+        imaging_api_data = {}
+        # imaging_api_data = {'data':'here'}
+        print(imaging_api_data)
+    return imaging_api_data
+
+def serve_data_store_raw(url_data_path, local_data_path, source):
+
+    api_data = get_imaging_api()
+    if any(api_data.keys()):
+        imaging = pd.DataFrame(api_data['data']['imaging'])
+        imaging_source = 'api'
+        qc = pd.DataFrame(api_data['data']['qc'])
+        qc_source = 'api'
+    else:
+        imaging, imaging_source = load_imaging(url_data_path, local_data_path, source)
+        qc, qc_source = load_qc(url_data_path, local_data_path, source)
+
+    # if imaging.empty or qc.empty:
+    #     completions = pd.DataFrame()
+    #     imaging_overview =  pd.DataFrame()
+    #     indicated_received =  pd.DataFrame()
+    #     stacked_bar_df =  pd.DataFrame()
+    #     sites = []
+    # else:
+    #     completions = get_completions(imaging)
+    #     imaging_overview = roll_up(imaging)
+    #     indicated_received = get_indicated_received_discrepancy(imaging)
+    #     stacked_bar_df = get_stacked_bar_data(qc, 'sub', 'rating', ['site','ses'])
+    #     sites = list(imaging.site.unique())
+
+    data_dictionary = {
+        'imaging': imaging.to_dict('records'),
+        'imaging_source': imaging_source,
+        # 'sites': sites,
+        'qc': qc.to_dict('records'),
+        'qc_source': qc_source,
+        # 'completions': completions.to_dict('records'),
+        # 'imaging_overview' : imaging_overview.to_dict('records'),
+        # 'indicated_received' : indicated_received.to_dict('records'),
+    }
+
+    data_stores = html.Div([
+        dcc.Store(id='session_data', storage_type='session', data = data_dictionary),
+        dcc.Store(id='filtered_data'),
+        # html.P('Imaging Source: ' + data_dictionary['imaging_source']),
+        # html.P('QC Source: ' + data_dictionary['qc_source']),
+        html.Div(id='content_div')
+        # create_content(sites)
+    ])
+    return data_stores
+
 def serve_data_stores(url_data_path, local_data_path, source):
     imaging, imaging_source = load_imaging(url_data_path, local_data_path, source)
     qc, qc_source = load_qc(url_data_path, local_data_path, source)
@@ -246,6 +307,7 @@ def serve_data_stores(url_data_path, local_data_path, source):
         create_content(sites)
     ])
     return data_stores
+
 
 def create_content(sites):
     if len(sites) > 0:
@@ -324,11 +386,19 @@ def create_content(sites):
     return content
 
 def serve_layout():
+    api_data = get_imaging_api()
+    imaging_api = api_data['data']['imaging']
+    qc_api = api_data['data']['qc']
+
     # try:
     page_layout =  html.Div([
     # change to 'url' before deploy
-            # serve_data_stores(data_url_root, DATA_PATH, 'local'),
-            serve_data_stores(data_url_root, DATA_PATH, 'url'),
+            # serve_data_store_raw(data_url_root, DATA_PATH, 'local'),
+            # dcc.Store(id='store_datastore', data = api_data),
+            # html.Div([html.P(key) for key in api_data['data'].keys()]),
+            # html.Div([html.P(len(imaging_api))]),
+            serve_data_store_raw(data_url_root, DATA_PATH, 'url'),
+            # serve_data_stores(data_url_root, DATA_PATH, 'url'),
             ], className='delay')
 
     # except:
@@ -341,16 +411,35 @@ app.layout = serve_layout
 # ----------------------------------------------------------------------------
 # DATA CALLBACKS
 # ----------------------------------------------------------------------------
-# @app.callback(
-#     Output("offcanvas", "is_open"),
-#     Input("open-offcanvas", "n_clicks"),
-#     [State("offcanvas", "is_open")],
-# )
-# def toggle_offcanvas(n1, is_open):
-#     if n1:
-#         return not is_open
-#     return is_open
+@app.callback(
+    Output('filtered_data', 'data'),
+    Output('content_div','children'),
+    Input('session_data', 'data')
+)
+def filter_data(data):
+    imaging = pd.DataFrame.from_dict(data['imaging'])
+    qc = pd.DataFrame.from_dict(data['qc'])
 
+    filtered_imaging = imaging.copy()
+
+    completions = get_completions(filtered_imaging)
+    imaging_overview = roll_up(filtered_imaging)
+    indicated_received = get_indicated_received_discrepancy(filtered_imaging)
+    stacked_bar_df = get_stacked_bar_data(qc, 'sub', 'rating', ['site','ses'])
+    sites = list(filtered_imaging.site.unique())
+
+    filtered_data_dictionary = {
+        'imaging': filtered_imaging.to_dict('records'),
+        'sites': sites,
+        'qc': qc.to_dict('records'),
+        'completions': completions.to_dict('records'),
+        'imaging_overview' : imaging_overview.to_dict('records'),
+        'indicated_received' : indicated_received.to_dict('records'),
+    }
+
+    content = create_content(sites)
+
+    return filtered_data_dictionary, content
 
 @app.callback(Output("tab-content", "children"),
     Output('dropdown-sites-col','style'),

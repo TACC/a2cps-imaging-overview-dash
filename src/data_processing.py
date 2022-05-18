@@ -16,6 +16,7 @@ from config_settings import *
 # ----------------------------------------------------------------------------
 # LOAD DATA
 # ----------------------------------------------------------------------------
+
 def load_imaging(url_data_path, local_data_path, source='url'):
     if source == 'local':
         imaging = pd.read_csv(os.path.join(local_data_path,'imaging-log-latest.csv'))
