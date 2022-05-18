@@ -19,7 +19,7 @@ services:
       - datastore_net
     volumes:
       - ./src/:/app/
-#   env_file: local.env
+    env_file: local.env
     container_name: a2cps_imaging_overview_dash
     command: [ "gunicorn", "-b", ":8050", "--reload", "app:server" ]
 

@@ -1,3 +1,7 @@
+# Ignore .env files
+.env
+
+
 # Local files for development purposes
 # Ignore local data again once API turned on
 data/group_bold.csv
