@@ -104,7 +104,7 @@ def create_pie_charts(completions):
 # ----------------------------------------------------------------------------
 # DASH APP LAYOUT FUNCTION
 # ----------------------------------------------------------------------------
-def serve_data_stores(source):
+def serve_data_stores(source='url'):
     imaging, imaging_source = load_imaging(source)
     qc, qc_source = load_qc(source)
     completions = get_completions(imaging)
