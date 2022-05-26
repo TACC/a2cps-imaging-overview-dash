@@ -8,6 +8,7 @@ from dash.exceptions import PreventUpdate
 import dash_daq as daq
 
 import plotly.figure_factory as ff
+import os
 
 # import local modules
 from config_settings import *
@@ -237,28 +238,11 @@ def serve_data_store_raw(url_data_path, local_data_path, source):
         imaging, imaging_source = load_imaging(url_data_path, local_data_path, source)
         qc, qc_source = load_qc(url_data_path, local_data_path, source)
 
-    # if imaging.empty or qc.empty:
-    #     completions = pd.DataFrame()
-    #     imaging_overview =  pd.DataFrame()
-    #     indicated_received =  pd.DataFrame()
-    #     stacked_bar_df =  pd.DataFrame()
-    #     sites = []
-    # else:
-    #     completions = get_completions(imaging)
-    #     imaging_overview = roll_up(imaging)
-    #     indicated_received = get_indicated_received_discrepancy(imaging)
-    #     stacked_bar_df = get_stacked_bar_data(qc, 'sub', 'rating', ['site','ses'])
-    #     sites = list(imaging.site.unique())
-
     data_dictionary = {
         'imaging': imaging.to_dict('records'),
         'imaging_source': imaging_source,
-        # 'sites': sites,
         'qc': qc.to_dict('records'),
         'qc_source': qc_source,
-        # 'completions': completions.to_dict('records'),
-        # 'imaging_overview' : imaging_overview.to_dict('records'),
-        # 'indicated_received' : indicated_received.to_dict('records'),
     }
 
     data_stores = html.Div([
@@ -301,11 +285,19 @@ def serve_data_stores(url_data_path, local_data_path, source):
 
     data_stores = html.Div([
         dcc.Store(id='session_data', storage_type='session', data = data_dictionary),
-
+        dcc.Store(id='filtered_data'),
         # html.P('Imaging Source: ' + data_dictionary['imaging_source']),
         # html.P('QC Source: ' + data_dictionary['qc_source']),
+        html.Div(id='content_div'),
         create_content(sites)
     ])
+    # data_stores = html.Div([
+    #     dcc.Store(id='session_data', storage_type='session', data = data_dictionary),
+    #
+    #     # html.P('Imaging Source: ' + data_dictionary['imaging_source']),
+    #     # html.P('QC Source: ' + data_dictionary['qc_source']),
+    #     create_content(sites)
+    # ])
     return data_stores
 
 
@@ -315,14 +307,42 @@ def create_content(sites):
                     html.Div([
                         dbc.Row([
                             dbc.Col([
+                                html.P(date.today().strftime('%B %d, %Y')),
+                                html.P('Version Date: 03/10/22'),
+                            ], width=3),
+                            dbc.Col([
                                 html.H1('Imaging Overview Report', style={'textAlign': 'center'})
-                            ])
-                            ], justify='center', align='center'),
+                            ], width={"size": 6}),
+                            dbc.Col([
+                                html.P('Date range for report'),
+                                # dcc.Dropdown(
+                                #        options=[
+                                #            {'label': 'New York City', 'value': 'New York City'},
+                                #            {'label': 'Montreal', 'value': 'Montreal'},
+                                #            {'label': 'San Francisco', 'value': 'San Francisco'},
+                                #        ],
+                                #        value='Montreal'
+                                #     ),
+                                dcc.DatePickerRange(
+                                    id='report-date-picker-range',
+                                    start_date = '2021-03-29',
+                                    end_date=datetime.now().date(),
+                                    min_date_allowed = '2021-03-29',
+                                    number_of_months_shown = 3,
+                                    show_outside_days = True,
+                                ),
+                            ], width=2),
+                            dbc.Col([
+                                html.Br(),
+                                dbc.Button('Rerun Report', id='btn-rerun-dates',n_clicks=0),],width=1)
+                            ]
+                            # , justify='center', align='center'
+                            ),
+
                         dbc.Row([
                             dbc.Col([
-                                html.P(date.today().strftime('%B %d, %Y')),
-                                html.P('Version Date: 03/10/22')],
-                            width=10),
+
+                            ],width=10),
                             dbc.Col([
                                 # offcanvas
                                 html.Div([
@@ -386,19 +406,20 @@ def create_content(sites):
     return content
 
 def serve_layout():
-    api_data = get_imaging_api()
-    imaging_api = api_data['data']['imaging']
-    qc_api = api_data['data']['qc']
+    # api_data = get_imaging_api()
+    # imaging_api = api_data['data']['imaging']
+    # qc_api = api_data['data']['qc']
 
     # try:
     page_layout =  html.Div([
+        html.Div(id='test-div'),
     # change to 'url' before deploy
             # serve_data_store_raw(data_url_root, DATA_PATH, 'local'),
             # dcc.Store(id='store_datastore', data = api_data),
             # html.Div([html.P(key) for key in api_data['data'].keys()]),
             # html.Div([html.P(len(imaging_api))]),
-            serve_data_store_raw(data_url_root, DATA_PATH, 'url'),
-            # serve_data_stores(data_url_root, DATA_PATH, 'url'),
+            # serve_data_store_raw(data_url_root, DATA_PATH, 'url'),
+            serve_data_stores(data_url_root, DATA_PATH, 'url'),
             ], className='delay')
 
     # except:
@@ -411,16 +432,34 @@ app.layout = serve_layout
 # ----------------------------------------------------------------------------
 # DATA CALLBACKS
 # ----------------------------------------------------------------------------
+# @app.callback(
+#     Output('test-div','children'),
+#     Input('btn-rerun-dates','n_clicks'),
+#     State('report-date-picker-range', 'start_date'),
+#     State('report-date-picker-range', 'end_date')
+# )
+# def rerun_new_dates(n_clicks, start_date, end_date):
+#     if n_clicks == 0:
+#         return 'no clicks'
+#     else:
+#         kids = [html.P(str(start_date)), html.P(str(end_date))]
+#         return kids
+
 @app.callback(
     Output('filtered_data', 'data'),
-    Output('content_div','children'),
-    Input('session_data', 'data')
+    # Output('content_div','children'),
+    Output('test-div','children'),
+    Input('session_data', 'data'),
+    Input('btn-rerun-dates','n_clicks'),
+    State('report-date-picker-range', 'start_date'),
+    State('report-date-picker-range', 'end_date')
 )
-def filter_data(data):
+def filter_data(data, n_clicks, start_date, end_date):
     imaging = pd.DataFrame.from_dict(data['imaging'])
     qc = pd.DataFrame.from_dict(data['qc'])
 
-    filtered_imaging = imaging.copy()
+    imaging_df = imaging.copy()
+    filtered_imaging = filter_imaging(imaging_df, start_date, end_date)
 
     completions = get_completions(filtered_imaging)
     imaging_overview = roll_up(filtered_imaging)
@@ -437,9 +476,20 @@ def filter_data(data):
         'indicated_received' : indicated_received.to_dict('records'),
     }
 
-    content = create_content(sites)
+    # content = create_content(sites)
+    kids = [html.P(str(start_date)), html.P(str(end_date))]
 
-    return filtered_data_dictionary, content
+    return filtered_data_dictionary,  kids
+
+
+# @app.callback(
+#     Output('content_div','children'),
+#     Input('filtered_data', 'data')
+# )
+# def build_content(filtered_data):
+#     content = create_content(sites)
+#
+#     return filtered_data_dictionary, content
 
 @app.callback(Output("tab-content", "children"),
     Output('dropdown-sites-col','style'),
@@ -519,7 +569,7 @@ def update_overview_section(data):
     Output('discrepancies_section', 'children'),
     Input('session_data', 'data')
 )
-def update_overview_section(data):
+def update_discrepancies_section(data):
      indicated_received = pd.DataFrame.from_dict(data['indicated_received'])
      mismatch_ir = indicated_received[indicated_received['Indicated'] != indicated_received['Received']].sort_values(['Site','Subject','Visit','Scan','Indicated'])
      indicated_received_table = dt.DataTable(

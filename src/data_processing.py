@@ -11,7 +11,6 @@ import pandas as pd # Dataframe manipulations
 import datetime
 from datetime import date
 from datetime import datetime, timedelta
-from config_settings import *
 
 # ----------------------------------------------------------------------------
 # LOAD DATA
@@ -42,6 +41,32 @@ def load_qc(url_data_path, local_data_path, source='url'):
             qc = pd.DataFrame()
             qc_source = 'unavailable'
     return qc, qc_source
+
+# ----------------------------------------------------------------------------
+# FILTER DATA
+# ----------------------------------------------------------------------------
+
+def filter_imaging(imaging_df, start_date: datetime = None, end_date = None):
+    '''Filter the imaging datatable using:
+    start_date: select imaging records acquired on or after this date
+    end_date: select imaging records acquired on or before this date'''
+    filtered_imaging = imaging_df.copy()
+    filtered_imaging['acquisition_week']= pd.to_datetime(filtered_imaging['acquisition_week'], errors = 'coerce')
+
+    if isinstance(start_date, datetime):
+        filtered_imaging = filtered_imaging[filtered_imaging['acquisition_week'] >= start_date]
+
+    if isinstance(end_date, datetime):
+        filtered_imaging = filtered_imaging[filtered_imaging['acquisition_week'] <= end_date]
+
+    return filtered_imaging
+
+def filter_qc(qc, filtered_imaging):
+    '''Filter qx records to just those subjects / visits in the filtered imaging set'''
+    filt_sub = filtered_imaging[['subject_id','visit']]
+    filt_sub.columns = ['sub','ses']
+    filtered_qc = filt_sub.merge(qc, how = 'left',on = ['sub','ses'])
+    return filtered_qc
 
 # ----------------------------------------------------------------------------
 # Discrepancies Analysis
