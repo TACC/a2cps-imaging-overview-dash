@@ -1,0 +1,14 @@
+# This compose file is useful for testing https.
+# The .env file sets ENVVARS for the Docker CLI used by this compose file.
+---
+version: "3"
+services:
+  a2cps_imaging_overview_dash:
+    build: .
+    ports:
+      - 8050:8050
+    volumes:
+      - ./src/:/app/
+#   env_file: local.env
+    container_name: a2cps_imaging_overview_dash
+    command: [ "gunicorn", "-b", ":8050", "--reload", "app:server" ]

@@ -9,6 +9,7 @@ ASSETS_PATH = pathlib.Path(__file__).parent.joinpath("assets", "/assets")
 REQUESTS_PATHNAME_PREFIX = os.environ.get("REQUESTS_PATHNAME_PREFIX", "/")
 
 data_url_root ='https://api.a2cps.org/files/v2/download/public/system/a2cps.storage.community/reports/imaging'
+# data_repository = 'https://api.a2cps.org/files/v2/download/public/system/a2cps.storage.community/reports/imaging'
 
 init_api_data = {
         'imaging-log-latest.csv':{'date_request':None, 'request_status': None, 'date_data':None, 'data':None},

@@ -10,6 +10,7 @@ from dash import Dash, callback, clientside_callback, html, dcc, dash_table, Inp
 from dash.exceptions import PreventUpdate
 
 # Data Visualization
+import plotly.graph_objects as go
 import plotly.express as px
 from styling import *
 
@@ -34,6 +35,9 @@ def build_pie_col(df, col):
 
 def bar_chart_dataframe(df, mcc_dict, count_col, x_col, color_col = None, facet_col = None, facet_row = None, chart_type='Count'):
     # Get grouping cols for stacked bar
+    if x_col is None:
+        df['all'] = 1
+        x_col ='all'
     bar_cols = [x_col]
     for col in [facet_col, facet_row]:
         if col:
@@ -43,40 +47,79 @@ def bar_chart_dataframe(df, mcc_dict, count_col, x_col, color_col = None, facet_
     group_cols = bar_cols.copy()
     if color_col:
         group_cols.append(color_col)
-
     df = df.merge(pd.DataFrame(mcc_dict), how='left', on='site')
     df = df[[count_col] + group_cols].groupby(group_cols).count().reset_index()
     df['N'] = df[[count_col] + bar_cols].groupby(bar_cols)[count_col].transform('sum')
     df['Percent'] = 100 * df[count_col] / df['N']
 
-    if chart_type == 'Percent':
-        y_col = 'Percent'
-    else:
-        y_col = count_col
+    col_rename_dict = {'site':'Site', 'mcc':'MCC', 'rating': 'Image Rating',
+                       'sub':'Scan Count', 'N':'Category Count', 'scan':'Scan'}
 
-    fig = px.bar(df, y=y_col, x=x_col, color=color_col, facet_col = facet_col, facet_row = facet_row,
-                 text=df[count_col],
-                 color_discrete_map={'red':'FireBrick',
-                                     'yellow':'Gold',
-                                     'green':'ForestGreen',
-                                     'unavailable':'grey'},
-              category_orders={"scan": ["T1w", "CUFF1", "CUFF2", "REST1", 'REST2'],
-                              "rating": ["green","yellow","red"]}
+    df.rename(columns = col_rename_dict, inplace=True)
+
+    # cnvert variables
+    fig_settings = {'count_col': count_col,
+                    'y': count_col,
+                    'x': x_col,
+                    'color': color_col,
+                    'facetcol': facet_col,
+                    'facetrow': facet_row}
+    for col in list(fig_settings.keys()):
+        if fig_settings[col] and fig_settings[col] in list(col_rename_dict.keys()):
+            fig_settings[col] = col_rename_dict[fig_settings[col]]
+
+    if chart_type == 'Percent':
+        fig_settings['y'] = 'Percent'
+
+    fig = px.bar(df, y=fig_settings['y'], x=fig_settings['x'], color=fig_settings['color'],
+                    facet_col = fig_settings['facetcol'], facet_row = fig_settings['facetrow'],
+                     text=df[fig_settings['count_col']],
+                     color_discrete_map={'red':'FireBrick',
+                                         'yellow':'Gold',
+                                         'green':'ForestGreen',
+                                         'unavailable':'grey'},
+                  category_orders={"Scan": ["T1w", "CUFF1", "CUFF2", "REST1", 'REST2'],
+                                  'Image Rating': ["green","yellow","red"]}
                 )
 
     # Update display text of legend
-    rating_legend = {'green':'Green: no variations from protocol',
-                      'yellow':'Yellow: minor variations, correctable' ,
-                      'red':'Red: significant variations, not expected to be usable'}
+    rating_legend = {'green':'no known issues',
+                      'yellow':'minor variations/issues; correctable' ,
+                      'red':'significant variations/issues; not expected to be usable'}
     fig.for_each_trace(lambda t: t.update(name = rating_legend[t.name],
                                           legendgroup = rating_legend[t.name]
                                          ))
     fig.update_xaxes(title_text=' ')
-
+    fig.update_xaxes(matches=None)
     fig.update_layout(legend=dict( orientation = 'h'))
     fig.update_layout(legend_title_text='')
 
     return fig
+
+def datatable_settings_multiindex(df, flatten_char = '_'):
+    ''' Plotly dash datatables do not natively handle multiindex dataframes. This function takes a multiindex column set
+    and generates a flattend column name list for the dataframe, while also structuring the table dictionary to represent the
+    columns in their original multi-level format.
+
+    Function returns the variables datatable_col_list, datatable_data for the columns and data parameters of
+    the dash_table.DataTable'''
+    datatable_col_list = []
+
+    levels = df.columns.nlevels
+    if levels == 1:
+        for i in df.columns:
+            datatable_col_list.append({"name": i, "id": i})
+    else:
+        columns_list = []
+        for i in df.columns:
+            col_id = flatten_char.join(i)
+            datatable_col_list.append({"name": i, "id": col_id})
+            columns_list.append(col_id)
+        df.columns = columns_list
+
+    datatable_data = df.to_dict('records')
+
+    return datatable_col_list, datatable_data
 
 def generate_heat_matrix(df, colors):
     cut = len(df)
@@ -102,4 +145,4 @@ def generate_heat_matrix(df, colors):
         xgap = 3,
         ygap = 3
     )
-    return fig    
+    return fig
