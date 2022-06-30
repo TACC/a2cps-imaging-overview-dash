@@ -319,7 +319,8 @@ def create_content(sites):
             ])
     else:
         content = html.Div([
-            dbc.Alert("There has been a problem accessing the data API at this time. Please try again in a few minutes.", color="warning")
+            dbc.Alert("There has been a problem accessing the data API. Please try again in a few minutes.", color="warning")
+            # dbc.Alert("There has been a problem accessing the data API at this time. Please try again in a few minutes.", color="warning")
         ])
     return content
 
