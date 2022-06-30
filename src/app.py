@@ -253,7 +253,7 @@ def create_content(sites):
                     html.Div([
                         dbc.Row([
                             dbc.Col([
-                                html.H1('Imaging Overview Report', style={'textAlign': 'center'})
+                                html.H1('Imaging Overview REPORT', style={'textAlign': 'center'})
                             ])
                             ], justify='center', align='center'),
                         dbc.Row([
