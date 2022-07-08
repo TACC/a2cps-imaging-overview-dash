@@ -438,6 +438,9 @@ def update_overview_section(data):
 
      index_cols = ['Site','Subject','Visit']
      missing_surgery = df[df['Overdue']=='No Surgery Date'][['Site','Subject','Visit','Overdue']].drop_duplicates().sort_values(by=index_cols)
+     no_bids = df[df['BIDS']==0].sort_values(by=index_cols+['Scan'])
+     mismatch = df[(df['DICOM']==1) & (df['Indicated'] != df['Received'])]
+
      missing_surgery_table = dt.DataTable(
                     id='tbl-missing_surgery', data=missing_surgery.to_dict('records'),
                     columns=[{"name": i, "id": i} for i in missing_surgery.columns],
@@ -446,24 +449,45 @@ def update_overview_section(data):
                     sort_mode="multi",
                     )
 
-     mismatch_ir = df[df['Overdue']=='Yes'].sort_values(by=index_cols+['Scan'])
-     indicated_received_table = dt.DataTable(
-                    id='tbl-indicated_received', data=mismatch_ir.to_dict('records'),
-                    columns=[{"name": i, "id": i} for i in mismatch_ir.columns],
+
+     no_bids_table = dt.DataTable(
+                    id='tbl-no_bids', data=no_bids.to_dict('records'),
+                    columns=[{"name": i, "id": i} for i in no_bids.columns],
                     filter_action="native",
                     sort_action="native",
                     sort_mode="multi",
                     )
 
+     mismatch_table = dt.DataTable(
+                    id='tbl-mismatch', data=mismatch.to_dict('records'),
+                    columns=[{"name": i, "id": i} for i in mismatch.columns],
+                    filter_action="native",
+                    sort_action="native",
+                    sort_mode="multi",
+                    )
+
+    # mismatch = df[(df['DICOM']==1) & (df['Indicated'] != df['Received'])]
+    # mismatch_table = dt.DataTable(
+    #                 id='tbl-mismatch', data=mismatch.to_dict('records'),
+    #                 columns=[{"name": i, "id": i} for i in mismatch.columns],
+    #                 filter_action="native",
+    #                 sort_action="native",
+    #                 sort_mode="multi",
+    #                 )
+
      discrepancies_div = html.Div([
              dbc.Col([
-                 html.H3("Scans with a mismatch between 'Indicated' and 'Received'"),
-                 indicated_received_table
+                 html.H3("BIDS value = 0"),
+                 no_bids_table
              ],width=6),
             dbc.Col([
                 html.H3('Records with missing Surgery Date'),
                 missing_surgery_table
-            ],width=6)
+            ],width=6),
+           dbc.Col([
+               html.H3('Records with mismatch between indicated and received'),
+               mismatch_table
+           ],width=6),
 
      ])
      return discrepancies_div
