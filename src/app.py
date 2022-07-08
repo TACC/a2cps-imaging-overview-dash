@@ -223,7 +223,7 @@ def serve_data_stores(url_data_path, local_data_path, source):
     else:
         completions = get_completions(imaging)
         imaging_overview = roll_up(imaging)
-        indicated_received = get_indicated_received_discrepancy(imaging)
+        indicated_received = get_indicated_received(imaging)
         stacked_bar_df = get_stacked_bar_data(qc, 'sub', 'rating', ['site','ses'])
         sites = list(imaging.site.unique())
 
@@ -239,7 +239,7 @@ def serve_data_stores(url_data_path, local_data_path, source):
     }
 
     data_stores = html.Div([
-        dcc.Store(id='session_data', storage_type='session', data = data_dictionary),
+        dcc.Store(id='session_data',  data = data_dictionary), #storage_type='session',
 
         # html.P('Imaging Source: ' + data_dictionary['imaging_source']),
         # html.P('QC Source: ' + data_dictionary['qc_source']),
@@ -328,7 +328,7 @@ def serve_layout():
     page_layout =  html.Div([
     # change to 'url' before deploy
             # serve_data_stores('url'),
-            serve_data_stores(data_url_root, DATA_PATH, 'url'),
+            serve_data_stores(data_url_root, DATA_PATH, 'local'),
             ], className='delay')
 
     # except:
@@ -431,8 +431,21 @@ def update_overview_section(data):
     Input('session_data', 'data')
 )
 def update_overview_section(data):
-     indicated_received = pd.DataFrame.from_dict(data['indicated_received'])
-     mismatch_ir = indicated_received[indicated_received['Indicated'] != indicated_received['Received']].sort_values(['Site','Subject','Visit','Scan','Indicated'])
+     df = pd.DataFrame.from_dict(data['indicated_received'])
+     df['Surgery Week'] = pd.to_datetime(df['Surgery Week'], errors='coerce').dt.date
+     df['Overdue'] = df.apply(lambda x: calculate_overdue(x['BIDS'], x['Visit'], x['Surgery Week']), axis=1)
+
+     index_cols = ['Site','Subject','Visit']
+     missing_surgery = df[df['Overdue']=='No Surgery Date'][['Site','Subject','Visit','Overdue']].drop_duplicates().sort_values(by=index_cols)
+     missing_surgery_table = dt.DataTable(
+                    id='tbl-missing_surgery', data=missing_surgery.to_dict('records'),
+                    columns=[{"name": i, "id": i} for i in missing_surgery.columns],
+                    filter_action="native",
+                    sort_action="native",
+                    sort_mode="multi",
+                    )
+
+     mismatch_ir = df[df['Overdue']=='Yes'].sort_values(by=index_cols+['Scan'])
      indicated_received_table = dt.DataTable(
                     id='tbl-indicated_received', data=mismatch_ir.to_dict('records'),
                     columns=[{"name": i, "id": i} for i in mismatch_ir.columns],
@@ -442,10 +455,15 @@ def update_overview_section(data):
                     )
 
      discrepancies_div = html.Div([
+             dbc.Col([
+                 html.H3("Scans with a mismatch between 'Indicated' and 'Received'"),
+                 indicated_received_table
+             ],width=6),
             dbc.Col([
-                html.H3("Scans with a mismatch between 'Indicated' and 'Received'"),
-                indicated_received_table
-            ],width=6),
+                html.H3('Records with missing Surgery Date'),
+                missing_surgery_table
+            ],width=6)
+
      ])
      return discrepancies_div
 
