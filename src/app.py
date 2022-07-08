@@ -217,13 +217,13 @@ def serve_data_stores(url_data_path, local_data_path, source):
     if imaging.empty or qc.empty:
         completions = pd.DataFrame()
         imaging_overview =  pd.DataFrame()
-        indicated_received =  pd.DataFrame()
+        # indicated_received =  pd.DataFrame()
         stacked_bar_df =  pd.DataFrame()
         sites = []
     else:
         completions = get_completions(imaging)
         imaging_overview = roll_up(imaging)
-        indicated_received = get_indicated_received(imaging)
+        # indicated_received = get_indicated_received(imaging)
         stacked_bar_df = get_stacked_bar_data(qc, 'sub', 'rating', ['site','ses'])
         sites = list(imaging.site.unique())
 
@@ -235,7 +235,7 @@ def serve_data_stores(url_data_path, local_data_path, source):
         'qc_source': qc_source,
         'completions': completions.to_dict('records'),
         'imaging_overview' : imaging_overview.to_dict('records'),
-        'indicated_received' : indicated_received.to_dict('records'),
+        # 'indicated_received' : indicated_received.to_dict('records'),
     }
 
     data_stores = html.Div([
@@ -432,11 +432,11 @@ def update_overview_section(data):
     Input('session_data', 'data')
 )
 def update_overview_section(data):
-     df = pd.DataFrame.from_dict(data['indicated_received'])
-     # df['Surgery Week'] = pd.to_datetime(df['Surgery Week'], errors='coerce').dt.date
-     # df['Acquisition Week'] = pd.to_datetime(df['Acquisition Week'], errors='coerce').dt.date
-     # df['Overdue'] = df.apply(lambda x: calculate_overdue(x['BIDS'], x['Visit'], x['Surgery Week']), axis=1)
+    # Load imaging data from data store
+     imaging = pd.DataFrame.from_dict(data['imaging'])
 
+     # Get data for tables
+     df = get_indicated_received(imaging)
      index_cols = ['Site','Subject','Visit']
      missing_surgery = df[df['Overdue']=='No Surgery Date'][['Site','Subject','Visit','Acquisition Week','Overdue']].drop_duplicates().sort_values(by=index_cols)
      no_bids = df[df['BIDS']==0].sort_values(by=index_cols+['Scan'])
