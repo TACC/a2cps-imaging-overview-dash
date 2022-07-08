@@ -1,7 +1,9 @@
 # Local files for development purposes
 # Ignore local data again once API turned on
-data/group_bold.csv
-data/archive/
+src/data/group_bold.csv
+src/data/archive/
+# ignore config_settings once DATA_SOURCE added
+# src/config_settings.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
