@@ -46,6 +46,18 @@ def load_qc(url_data_path, local_data_path, source='url'):
 # Discrepancies Analysis
 # ----------------------------------------------------------------------------
 
+def calculate_overdue(BIDS, visit, surgery_week):
+    today = datetime.now().date()
+    if surgery_week is pd.NaT:
+        overdue='No Surgery Date'
+    elif BIDS == 0 and visit == 'V1' and surgery_week < today:
+        overdue = 'Yes'
+    elif BIDS == 0 and visit == 'V3' and  (today-surgery_week).days > 90:
+        overdue = 'Yes'
+    else:
+        overdue='No'
+    return overdue
+
 def get_indicated_received(imaging_dataframe, validation_column = 'bids_validation', validation_value = 1):
     """The get_indicated_received(imaging_dataframe) function takes the imaging log data frame and lengthens the
     table to convert the scan into a variable while preserving columns for the indicated and received value of each scan.
@@ -55,8 +67,8 @@ def get_indicated_received(imaging_dataframe, validation_column = 'bids_validati
 
     # Select columns, and create long dataframes from those columns, pivoting the scan into a variable
     # Select and pivot indicated columns
-    index_cols = ['site','subject_id','visit','Surgery Week','bids_validation', 'dicom']
-    index_new = ['Site', 'Subject', 'Visit','Surgery Week', 'BIDS','DICOM']
+    index_cols = ['site','subject_id','visit','acquisition_week','Surgery Week','bids_validation', 'dicom']
+    index_new = ['Site', 'Subject', 'Visit','Acquisition Week','Surgery Week', 'BIDS','DICOM']
 
     indicated_cols = ['T1 Indicated',
            'DWI Indicated',
@@ -97,20 +109,14 @@ def get_indicated_received(imaging_dataframe, validation_column = 'bids_validati
     combined = pd.merge(indicated, received, how='outer', on=index_new + ['Scan'] )
     combined.columns = index_new + ['Scan','Indicated','Received']
 
+    # Convert columns to dates and calculate if overdue
+    combined['Surgery Week'] = pd.to_datetime(combined['Surgery Week'], errors='coerce').dt.date
+    combined['Acquisition Week'] = pd.to_datetime(combined['Acquisition Week'], errors='coerce').dt.date
+    combined['Overdue'] = combined.apply(lambda x: calculate_overdue(x['BIDS'], x['Visit'], x['Surgery Week']), axis=1)
+
     return combined
 
-def calculate_overdue(BIDS, visit, surgery_week):
-    today = datetime.now().date()
-    if surgery_week is pd.NaT:
-        overdue='No Surgery Date'
-    elif BIDS == 0 and visit == 'V1' and surgery_week < today:
-        overdue = 'Yes'
-    elif BIDS == 0 and visit == 'V3' and  (today-surgery_week).days > 90:
-        overdue = 'Yes'
-    else:
-        overdue='No'
 
-    return overdue
 
 # ----------------------------------------------------------------------------
 # Imaging Overview
