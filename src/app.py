@@ -328,7 +328,7 @@ def serve_layout():
     page_layout =  html.Div([
     # change to 'url' before deploy
             # serve_data_stores('url'),
-            serve_data_stores(data_url_root, DATA_PATH, 'url'),
+            serve_data_stores(data_url_root, DATA_PATH, DATA_SOURCE),
             ], className='delay')
 
     # except:
