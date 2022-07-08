@@ -433,11 +433,12 @@ def update_overview_section(data):
 )
 def update_overview_section(data):
      df = pd.DataFrame.from_dict(data['indicated_received'])
-     df['Surgery Week'] = pd.to_datetime(df['Surgery Week'], errors='coerce').dt.date
-     df['Overdue'] = df.apply(lambda x: calculate_overdue(x['BIDS'], x['Visit'], x['Surgery Week']), axis=1)
+     # df['Surgery Week'] = pd.to_datetime(df['Surgery Week'], errors='coerce').dt.date
+     # df['Acquisition Week'] = pd.to_datetime(df['Acquisition Week'], errors='coerce').dt.date
+     # df['Overdue'] = df.apply(lambda x: calculate_overdue(x['BIDS'], x['Visit'], x['Surgery Week']), axis=1)
 
      index_cols = ['Site','Subject','Visit']
-     missing_surgery = df[df['Overdue']=='No Surgery Date'][['Site','Subject','Visit','Overdue']].drop_duplicates().sort_values(by=index_cols)
+     missing_surgery = df[df['Overdue']=='No Surgery Date'][['Site','Subject','Visit','Acquisition Week','Overdue']].drop_duplicates().sort_values(by=index_cols)
      no_bids = df[df['BIDS']==0].sort_values(by=index_cols+['Scan'])
      mismatch = df[(df['DICOM']==1) & (df['Indicated'] != df['Received'])]
 
