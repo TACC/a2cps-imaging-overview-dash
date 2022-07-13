@@ -206,7 +206,61 @@ def create_pie_charts(completions):
     ]
     return pie_charts
 
+def build_boxplot(df):
+    fig=go.Figure()
 
+    data_length = (len(df['site'].unique()))
+
+    for i, visit in enumerate(df['visit'].unique()):
+        df_plot=df[df['visit']==visit]
+        #print(df_plot.head())
+
+        fig.add_trace(go.Box(x=df_plot['site'],
+                             y=df_plot['Cuff1 Applied Pressure'],
+                             meta = visit,
+#                              boxmean="sd",
+                             line=dict(color=px.colors.qualitative.Plotly[i]),
+                             boxpoints='suspectedoutliers',
+                             name=visit,
+                             offsetgroup=visit,
+                            ))
+
+
+        ## loop through the values you want to label and add them as annotations
+    for i, visit in enumerate(df['visit'].unique()):
+        for s in df['site'].unique():
+            # Get settings for annotation
+            xshift = 25
+            if i == 0:
+                xshift = -xshift
+            else:
+                xshift = xshift
+            y_point = df[(df['site']==s) & (df['visit']==visit)]['Cuff1 Applied Pressure'].median()
+            records = len(df[(df['site']==s) & (df['visit']==visit)]['Cuff1 Applied Pressure'])
+            if records > 0:
+                text = '<b>' + str(len(df[(df['site']==s) & (df['visit']==visit)]['Cuff1 Applied Pressure'])) + '</b>'
+
+            else:
+                text =''
+
+            fig.add_annotation(
+                    x=s,
+                    y=y_point,
+                    text=text,
+                    showarrow=False,
+                    xshift = xshift,
+                    yshift=10,
+
+            )
+
+    fig.update_layout(boxmode='group',
+                      xaxis_tickangle=0,
+        autosize=False,
+        width=1000,
+        height=800,legend=dict(
+                orientation="h"))
+
+    return fig
 # ----------------------------------------------------------------------------
 # DASH APP LAYOUT FUNCTION
 # ----------------------------------------------------------------------------
@@ -286,6 +340,7 @@ def create_content(sites):
                                     dbc.Tab(label='Completions', tab_id='tab-completions'),
                                     dbc.Tab(label='Pie Charts', tab_id='tab-pie'),
                                     dbc.Tab(label='Heat Map', tab_id='tab-heatmap'),
+                                    dbc.Tab(label='Cuff Pressure', tab_id='tab-cuff'),
                                 ]),
                             ],width=10),
                             dbc.Col([
@@ -341,16 +396,6 @@ app.layout = serve_layout
 # ----------------------------------------------------------------------------
 # DATA CALLBACKS
 # ----------------------------------------------------------------------------
-# @app.callback(
-#     Output("offcanvas", "is_open"),
-#     Input("open-offcanvas", "n_clicks"),
-#     [State("offcanvas", "is_open")],
-# )
-# def toggle_offcanvas(n1, is_open):
-#     if n1:
-#         return not is_open
-#     return is_open
-
 
 @app.callback(Output("tab-content", "children"),
     Output('dropdown-sites-col','style'),
@@ -420,6 +465,14 @@ def switch_tab(at):
     elif at == "tab-heatmap":
         heatmap = html.Div(id='heatmap')
         return heatmap, {'display': 'block'}
+    elif at == "tab-cuff":
+        cuff = html.Div([
+            dbc.Row([
+                dbc.Col([html.Div(id='cuff_section')])
+            ]),
+        ])
+        return cuff, {'display': 'block'}
+
     return html.P("This shouldn't ever be displayed...")
 # Define callback to update graph_stackedbar
 
@@ -472,15 +525,6 @@ def update_overview_section(data):
                     sort_mode="multi",
                     )
 
-    # mismatch = df[(df['DICOM']==1) & (df['Indicated'] != df['Received'])]
-    # mismatch_table = dt.DataTable(
-    #                 id='tbl-mismatch', data=mismatch.to_dict('records'),
-    #                 columns=[{"name": i, "id": i} for i in mismatch.columns],
-    #                 filter_action="native",
-    #                 sort_action="native",
-    #                 sort_mode="multi",
-    #                 )
-
      discrepancies_div = html.Div([
              dbc.Col([
                  html.H3("BIDS value = 0"),
@@ -498,6 +542,21 @@ def update_overview_section(data):
      ])
      return discrepancies_div
 
+@app.callback(
+    Output('cuff_section', 'children'),
+    Input('session_data', 'data')
+)
+def update_cuff_section(data):
+    # Load imaging data from data store
+     imaging = pd.DataFrame.from_dict(data['imaging'])
+     fig = build_boxplot(imaging)
+     cuff_div = html.Div([
+             dbc.Col([
+                 html.H3("Cuff1 Applied Pressure"),
+                 dcc.Graph(id='boxplot_cuff1', figure=fig)
+             ]),
+     ])
+     return cuff_div
 
 @app.callback(
     Output('graph_stackedbar_div', 'children'),
