@@ -23,6 +23,10 @@ bar_chart_options = {'None':'None', 'MCC':'mcc', 'Site':'site','Visit':'ses','Sc
 sites_filepath = os.path.join(DATA_PATH,'sites.csv')
 sites_info = pd.read_csv(sites_filepath)
 
+# Get rescinded patients from local file until subjects API is working
+rescinded_date = '07/11/2022'
+rescinded_filepath = os.path.join(DATA_PATH,'rescinded.csv')
+rescinded = pd.read_csv(rescinded_filepath)
 
 # ----------------------------------------------------------------------------
 # PROCESS DATA
@@ -493,21 +497,17 @@ def update_overview_section(data):
     # Load imaging data from data store
      imaging = pd.DataFrame.from_dict(data['imaging'])
 
+     # Rescinded patients in imaging
+     cols = ['site', 'subject_id', 'visit',  'dicom',
+       'bids', 'bids_validation', 'acquisition_week', 'Surgery Week']
+     rescinded_imaging = imaging[imaging['subject_id'].isin(list(rescinded['main_record_id']))][cols]
+     rescind_msg = 'Subjects who rescinded prior to ' + rescinded_date + 'but have records in the imaging file'
+
      # Get data for tables
      df = get_indicated_received(imaging)
      index_cols = ['Site','Subject','Visit']
-     missing_surgery = df[df['Overdue']=='No Surgery Date'][['Site','Subject','Visit','Acquisition Week','Overdue']].drop_duplicates().sort_values(by=index_cols)
      no_bids = df[df['BIDS']==0].sort_values(by=index_cols+['Scan'])
      mismatch = df[(df['DICOM']==1) & (df['Indicated'] != df['Received'])]
-
-     missing_surgery_table = dt.DataTable(
-                    id='tbl-missing_surgery', data=missing_surgery.to_dict('records'),
-                    columns=[{"name": i, "id": i} for i in missing_surgery.columns],
-                    filter_action="native",
-                    sort_action="native",
-                    sort_mode="multi",
-                    )
-
 
      no_bids_table = dt.DataTable(
                     id='tbl-no_bids', data=no_bids.to_dict('records'),
@@ -525,20 +525,28 @@ def update_overview_section(data):
                     sort_mode="multi",
                     )
 
+     rescinded_table = dt.DataTable(
+                    id='tbl-rescinded', data=rescinded_imaging.to_dict('records'),
+                    columns=[{"name": i, "id": i} for i in rescinded_imaging.columns],
+                    filter_action="native",
+                    sort_action="native",
+                    sort_mode="multi",
+                    )
+
+
      discrepancies_div = html.Div([
              dbc.Col([
                  html.H3("BIDS value = 0"),
                  no_bids_table
              ],width=6),
-            dbc.Col([
-                html.H3('Records with missing Surgery Date'),
-                missing_surgery_table
-            ],width=6),
            dbc.Col([
                html.H3('Records with mismatch between indicated and received'),
                mismatch_table
            ],width=6),
-
+           dbc.Col([
+               html.H3(rescind_msg),
+               rescinded_table
+           ],width=6),
      ])
      return discrepancies_div
 
