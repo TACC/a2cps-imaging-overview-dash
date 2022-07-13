@@ -76,7 +76,7 @@ offcanvas_content = html.Div([
     ]),
     html.Div([
         html.P([' '], style={'background-color':'FireBrick', 'height': '20px', 'width':'20px','float':'left', 'clear':'both'}),
-        html.P(['significant variations/issues; not expected to be usable'], style={'padding-left': '30px', 'margin': '0px'})
+        html.P(['significant variations/issues; not expected to be comparable'], style={'padding-left': '30px', 'margin': '0px'})
     ]),
 ])
 
@@ -360,39 +360,45 @@ def switch_tab(at):
     if at == "tab-overview":
         overview = html.Div([
             dbc.Row([
-                dbc.Col([html.Div(id='overview_div')])
+                dbc.Col([
+                    html.H3('Scan sessions for pre-surgery (V1) and 3 month post surgery (V3) visits'),
+                    html.Div(id='overview_div')
+                ])
             ]),
             dbc.Row([
-                dbc.Col([html.Div(id='graph_stackedbar_div')], width=10),
-                    dbc.Col([
-                        html.H3('Bar Chart Settings'),
-                        html.Label('Chart Type'),
-                        daq.ToggleSwitch(
-                                id='toggle_stackedbar',
-                                label=['Count','Stacked Percent'],
-                                value=False
-                            ),
-                        html.Label('Separate by Visit'),
-                        daq.ToggleSwitch(
-                                id='toggle_visit',
-                                label=['Combined','Split'],
-                                value=False
-                            ),
-
-                        html.Label('Chart Selection'),
-                        dcc.Dropdown(
-                            id='dropdown-bar',
-                           options=[
-                               {'label': ' Site and MCC', 'value': 1},
-                               {'label': ' Site', 'value': 2},
-                               {'label': ' MCC', 'value': 3},
-                               {'label': ' Combined', 'value': 4},
-                           ],
-                           multi=False,
-                           clearable=False,
-                           value=1
+                dbc.Col([
+                    html.H3('Quality ratings for individual scans (up to six scans per session: T1w, DWI, REST1, CUFF1, CUFF2, REST2)'),
+                    html.Div(id='graph_stackedbar_div')
+                    ], width=10),
+                dbc.Col([
+                    html.H3('Bar Chart Settings'),
+                    html.Label('Chart Type'),
+                    daq.ToggleSwitch(
+                            id='toggle_stackedbar',
+                            label=['Count','Stacked Percent'],
+                            value=False
                         ),
-                        ],width=2),
+                    html.Label('Separate by Visit'),
+                    daq.ToggleSwitch(
+                            id='toggle_visit',
+                            label=['Combined','Split'],
+                            value=False
+                        ),
+
+                    html.Label('Chart Selection'),
+                    dcc.Dropdown(
+                        id='dropdown-bar',
+                       options=[
+                           {'label': ' Site and MCC', 'value': 1},
+                           {'label': ' Site', 'value': 2},
+                           {'label': ' MCC', 'value': 3},
+                           {'label': ' Combined', 'value': 4},
+                       ],
+                       multi=False,
+                       clearable=False,
+                       value=1
+                    ),
+                    ],width=2),
                 ]),
         ])
         style = {'display': 'none'}

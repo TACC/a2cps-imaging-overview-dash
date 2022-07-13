@@ -5,7 +5,7 @@ import pathlib # file paths
 # CONFIG SETTINGS
 # ----------------------------------------------------------------------------
 DATA_PATH = pathlib.Path(__file__).parent.joinpath("data")
-DATA_SOURCE = 'url'
+DATA_SOURCE = 'local'
 ASSETS_PATH = pathlib.Path(__file__).parent.joinpath("assets", "/assets")
 REQUESTS_PATHNAME_PREFIX = os.environ.get("REQUESTS_PATHNAME_PREFIX", "/")
 
