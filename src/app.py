@@ -19,6 +19,9 @@ from styling import *
 # Bar Chart options
 bar_chart_options = {'None':'None', 'MCC':'mcc', 'Site':'site','Visit':'ses','Scan':'scan'}
 
+# Set Version date
+version_msg = 'Version Date: 07/13/22'
+
 # Load local / asset data
 sites_filepath = os.path.join(DATA_PATH,'sites.csv')
 sites_info = pd.read_csv(sites_filepath)
@@ -317,7 +320,7 @@ def create_content(sites):
                         dbc.Row([
                             dbc.Col([
                                 html.P(date.today().strftime('%B %d, %Y')),
-                                html.P('Version Date: 03/10/22')],
+                                html.P(version_msg)],
                             width=10),
                             dbc.Col([
                                 # offcanvas
