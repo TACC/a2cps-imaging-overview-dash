@@ -327,7 +327,7 @@ def create_content(sites):
                                     ]),
                                     html.Div([
                                         html.P([' '], style={'background-color':'FireBrick', 'height': '20px', 'width':'20px','float':'left', 'clear':'both'}),
-                                        html.P(['significant variations/issues; not expected to be usable'], style={'padding-left': '30px', 'margin': '0px'})
+                                        html.P(['significant variations/issues; not expected to be comparable'], style={'padding-left': '30px', 'margin': '0px'})
                                     ]),
                             ],width=2),
                         ], style={'border':'1px solid black'}),
