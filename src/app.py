@@ -417,8 +417,10 @@ def switch_tab(at):
                 ])
             ]),
             dbc.Row([
+                dbc.Col([html.H3('Quality ratings for individual scans (up to six scans per session: T1w, DWI, REST1, CUFF1, CUFF2, REST2)')]),
+            ]),
+            dbc.Row([
                 dbc.Col([
-                    html.H3('Quality ratings for individual scans (up to six scans per session: T1w, DWI, REST1, CUFF1, CUFF2, REST2)'),
                     html.Div(id='graph_stackedbar_div')
                     ], width=10),
                 dbc.Col([
@@ -496,7 +498,7 @@ def update_overview_section(data):
     Output('discrepancies_section', 'children'),
     Input('session_data', 'data')
 )
-def update_overview_section(data):
+def update_discrepancies_section(data):
     # Load imaging data from data store
      imaging = pd.DataFrame.from_dict(data['imaging'])
 
@@ -504,7 +506,7 @@ def update_overview_section(data):
      cols = ['site', 'subject_id', 'visit',  'dicom',
        'bids', 'bids_validation', 'acquisition_week', 'Surgery Week']
      rescinded_imaging = imaging[imaging['subject_id'].isin(list(rescinded['main_record_id']))][cols]
-     rescind_msg = 'Subjects who rescinded prior to ' + rescinded_date + 'but have records in the imaging file'
+     rescind_msg = 'Subjects who rescinded prior to ' + rescinded_date + ' but have records in the imaging file'
 
      # Get data for tables
      df = get_indicated_received(imaging)
