@@ -317,7 +317,7 @@ def create_content(sites):
                         dbc.Row([
                             dbc.Col([
                                 html.P(date.today().strftime('%B %d, %Y')),
-                                html.P('Version Date: 03/10/22')],
+                                html.P('Version Date: 07/13/22')],
                             width=10),
                             dbc.Col([
                                 # offcanvas
