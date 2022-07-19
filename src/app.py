@@ -271,47 +271,86 @@ def build_boxplot(df):
 # ----------------------------------------------------------------------------
 # DASH APP LAYOUT FUNCTION
 # ----------------------------------------------------------------------------
-def serve_data_stores(url_data_path, local_data_path, source):
+def load_data_source(url_data_path, local_data_path, source):
     imaging, imaging_source = load_imaging(url_data_path, local_data_path, source)
     qc, qc_source = load_qc(url_data_path, local_data_path, source)
+
+    return imaging, imaging_source, qc, qc_source
+
+def get_filtered_data_store(raw_data_store, start_date: datetime = None, end_date = None):
+    imaging = pd.DataFrame.from_dict(raw_data_store['imaging'])
+    qc = pd.DataFrame.from_dict(raw_data_store['qc'])
 
     if imaging.empty or qc.empty:
         completions = pd.DataFrame()
         imaging_overview =  pd.DataFrame()
-        # indicated_received =  pd.DataFrame()
+        indicated_received =  pd.DataFrame()
         stacked_bar_df =  pd.DataFrame()
         sites = []
     else:
+        imaging = filter_imaging(imaging, start_date = start_date, end_date = end_date)
+        qc = filter_qc(qc, imaging)
+
         completions = get_completions(imaging)
         imaging_overview = roll_up(imaging)
-        # indicated_received = get_indicated_received(imaging)
+        indicated_received = get_indicated_received(imaging)
         stacked_bar_df = get_stacked_bar_data(qc, 'sub', 'rating', ['site','ses'])
         sites = list(imaging.site.unique())
 
-    data_dictionary = {
+    processed_data_dictionary = {
         'imaging': imaging.to_dict('records'),
-        'imaging_source': imaging_source,
-        'sites': sites,
         'qc': qc.to_dict('records'),
-        'qc_source': qc_source,
+        'sites': sites,
         'completions': completions.to_dict('records'),
         'imaging_overview' : imaging_overview.to_dict('records'),
+        'indicated_received' : indicated_received.to_dict('records'),
+    }
+
+    return processed_data_dictionary
+
+def serve_raw_data_store(url_data_path, local_data_path, source):
+    imaging, imaging_source, qc, qc_source = load_data_source(url_data_path, local_data_path, source)
+
+    if imaging.empty or qc.empty:
+        # completions = pd.DataFrame()
+        # imaging_overview =  pd.DataFrame()
+        # indicated_received =  pd.DataFrame()
+        # stacked_bar_df =  pd.DataFrame()
+        sites = []
+    else:
+        # completions = get_completions(imaging)
+        # imaging_overview = roll_up(imaging)
+        # indicated_received = get_indicated_received(imaging)
+        # stacked_bar_df = get_stacked_bar_data(qc, 'sub', 'rating', ['site','ses'])
+        sites = list(imaging.site.unique())
+
+    raw_data_dictionary = {
+        'imaging': imaging.to_dict('records'),
+        'qc': qc.to_dict('records'),
+        'imaging_source': imaging_source,
+        'qc_source': qc_source,
+        'sites': sites,
+        # 'completions': completions.to_dict('records'),
+        # 'imaging_overview' : imaging_overview.to_dict('records'),
         # 'indicated_received' : indicated_received.to_dict('records'),
     }
 
     data_stores = html.Div([
-        dcc.Store(id='session_data',  data = data_dictionary), #storage_type='session',
-
+        dcc.Store(id='session_data',  data = raw_data_dictionary), #storage_type='session',
+        dcc.Store(id='filtered_data'),
         # html.P('Imaging Source: ' + data_dictionary['imaging_source']),
         # html.P('QC Source: ' + data_dictionary['qc_source']),
         create_content(sites)
     ])
     return data_stores
 
+
+
 def create_content(sites):
     if len(sites) > 0:
         content = html.Div([
                     html.Div([
+                        dbc.Row(id='test-row'),
                         dbc.Row([
                             dbc.Col([
                                 html.H1('Imaging Overview Report', style={'textAlign': 'center'})
@@ -390,7 +429,7 @@ def serve_layout():
     page_layout =  html.Div([
     # change to 'url' before deploy
             # serve_data_stores('url'),
-            serve_data_stores(data_url_root, DATA_PATH, DATA_SOURCE),
+            serve_raw_data_store(data_url_root, DATA_PATH, DATA_SOURCE),
             ], className='delay')
 
     # except:
@@ -403,6 +442,24 @@ app.layout = serve_layout
 # ----------------------------------------------------------------------------
 # DATA CALLBACKS
 # ----------------------------------------------------------------------------
+# Filter
+@app.callback(
+    Output('filtered_data', 'data'),
+    Input('session_data', 'data')
+)
+def filtered(raw_data):
+    filtered_data = get_filtered_data_store(raw_data)
+    return filtered_data
+
+# Filter
+@app.callback(
+    Output('test-row','children'),
+    Input('filtered_data', 'data')
+)
+def see_filtering(filtered_data):
+    kids = html.Div()
+    # kids = html.Div(json.dumps(filtered_data['qc']))
+    return kids
 
 @app.callback(Output("tab-content", "children"),
     Output('dropdown-sites-col','style'),
@@ -488,7 +545,7 @@ def switch_tab(at):
 # Toggle Stacked bar toggle_stackedbar graph_stackedbar
 @app.callback(
     Output('overview_div', 'children'),
-    Input('session_data', 'data')
+    Input('filtered_data', 'data')
 )
 def update_overview_section(data):
     imaging_overview = pd.DataFrame.from_dict(data['imaging_overview'])
@@ -496,11 +553,12 @@ def update_overview_section(data):
 
 @app.callback(
     Output('discrepancies_section', 'children'),
-    Input('session_data', 'data')
+    Input('filtered_data', 'data')
 )
 def update_discrepancies_section(data):
     # Load imaging data from data store
      imaging = pd.DataFrame.from_dict(data['imaging'])
+     df = pd.DataFrame.from_dict(data['indicated_received'])
 
      # Rescinded patients in imaging
      cols = ['site', 'subject_id', 'visit',  'dicom',
@@ -509,7 +567,8 @@ def update_discrepancies_section(data):
      rescind_msg = 'Subjects who rescinded prior to ' + rescinded_date + ' but have records in the imaging file'
 
      # Get data for tables
-     df = get_indicated_received(imaging)
+     # df = get_indicated_received(imaging)
+     df = pd.DataFrame.from_dict(data['indicated_received'])
      index_cols = ['Site','Subject','Visit']
      no_bids = df[df['BIDS']==0].sort_values(by=index_cols+['Scan'])
      mismatch = df[(df['DICOM']==1) & (df['Indicated'] != df['Received'])]
@@ -557,7 +616,7 @@ def update_discrepancies_section(data):
 
 @app.callback(
     Output('cuff_section', 'children'),
-    Input('session_data', 'data')
+    Input('filtered_data', 'data')
 )
 def update_cuff_section(data):
     # Load imaging data from data store
@@ -573,12 +632,12 @@ def update_cuff_section(data):
 
 @app.callback(
     Output('graph_stackedbar_div', 'children'),
+    Input('filtered_data', 'data'),
     Input('toggle_stackedbar', 'value'),
     Input('toggle_visit', 'value'),
     Input('dropdown-bar', 'value'),
-    State('session_data', 'data')
 )
-def update_stackedbar(type, visit, chart_selection, data):
+def update_stackedbar(filtered_data, type, visit, chart_selection):
     global mcc_dict
     # False = Count and True = Percent
     # return json.dumps(mcc_dict)
@@ -587,7 +646,7 @@ def update_stackedbar(type, visit, chart_selection, data):
     else:
         type = 'Count'
 
-    qc = pd.DataFrame.from_dict(data['qc'])
+    qc = pd.DataFrame.from_dict(filtered_data['qc'])
     count_col='sub'
     color_col = 'rating'
 
@@ -616,7 +675,7 @@ def update_stackedbar(type, visit, chart_selection, data):
 @app.callback(
     Output('completions_section', 'children'),
     Input('dropdown-sites', 'value'),
-    State('session_data', 'data')
+    State('filtered_data', 'data')
 )
 def update_image_report(sites, data):
     imaging = pd.DataFrame.from_dict(data['imaging'])
@@ -634,7 +693,7 @@ def update_image_report(sites, data):
 @app.callback(
     Output('pie_charts', 'children'),
     Input('dropdown-sites', 'value'),
-    State('session_data', 'data')
+    State('filtered_data', 'data')
 )
 def update_pie(sites, data):
     imaging = pd.DataFrame.from_dict(data['imaging'])
@@ -645,7 +704,7 @@ def update_pie(sites, data):
 @app.callback(
     Output('heatmap', 'children'),
     Input('dropdown-sites', 'value'),
-    State('session_data', 'data')
+    State('filtered_data', 'data')
 )
 def update_heatmap(sites, data):
     global color_mapping_list
