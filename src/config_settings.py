@@ -6,6 +6,7 @@ import pathlib # file paths
 # ----------------------------------------------------------------------------
 DATA_PATH = pathlib.Path(__file__).parent.joinpath("data")
 DATA_SOURCE = 'local'
+LOCAL_DATA_DATE = '07/11/2022'
 ASSETS_PATH = pathlib.Path(__file__).parent.joinpath("assets", "/assets")
 REQUESTS_PATHNAME_PREFIX = os.environ.get("REQUESTS_PATHNAME_PREFIX", "/")
 
