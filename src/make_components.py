@@ -18,18 +18,29 @@ from styling import *
 # CUSTOM FUNCTIONS FOR DASH UI COMPONENTS
 # ----------------------------------------------------------------------------
 
-def pie_scan(df, value_col, col):
-    fig = px.pie(df, values=value_col, names=col, title=col,
-         color_discrete_sequence=['SteelBlue','lightgrey']
-        )
+def pie_scan(df, value_col, scan):
+    # fig = px.pie(df, values=value_col, names=col, title=col,
+    #      color_discrete_sequence=['SteelBlue','lightgrey']
+    #     )
+    # fig.update_traces(textposition='inside', textinfo='percent+label')
+    # fig.update_layout(showlegend=False)
+    pie_df = df[df['Scan']==scan]
+    fig = px.pie(pie_df, values=value_col, names='rating', title=scan, # color = 'rating',
+        color_discrete_sequence=['#47B39C','#FFC154','#EC6B56','lightgrey'],
+         color_discrete_map={'green':'#47B39C',
+                 'yellow':'#FFC154',
+                 'red':'#EC6B56',
+                 'N/A':'grey'}
+                )
     fig.update_traces(textposition='inside', textinfo='percent+label')
-    fig.update_layout(showlegend=False)
+    fig.update_layout(showlegend=False, legend={'orientation':'h'})
+
     return fig
 
-def build_pie_col(df, col):
-    figure_id = 'pie_' + col
+def build_pie_col(df, scan):
+    figure_id = 'pie_' + scan
     pie_col = dbc.Col([
-        dcc.Graph(figure = pie_scan(df, 'Count', col), id = figure_id)
+        dcc.Graph(figure = pie_scan(df, 'Count', scan), id = figure_id)
     ], width = 4)
     return pie_col
 

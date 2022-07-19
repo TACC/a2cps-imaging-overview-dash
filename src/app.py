@@ -42,8 +42,9 @@ mcc_dict = {'mcc': [1,1,1,2,2,2],
             }
 
 
-scan_dict = {'T1 Received':'T1',
-   'DWI Received':'DWI',
+scan_dict = {
+    'DWI Received':'DWI',
+    'T1 Received':'T1w',   
    '1st Resting State Received':'REST1',
    'fMRI Individualized Pressure Received':'CUFF1',
    'fMRI Standard Pressure Received':'CUFF2',
@@ -198,17 +199,17 @@ def completions_div(completions_cols, completions_data, imaging):
     ]
     return completions_div
 
-def create_pie_charts(completions):
+def create_pie_charts(ratings_rolled_up):
     pie_charts = [
 
         dbc.Row([dbc.Col([
             html.H3('Percent of returns by Scan type')
         ])]),
         dbc.Row([
-            build_pie_col(completions, col) for col in icols2[0:3]
+            build_pie_col(ratings_rolled_up, col) for col in icols2[0:3]
         ])        ,
         dbc.Row([
-            build_pie_col(completions, col) for col in icols2[3:6]
+            build_pie_col(ratings_rolled_up, col) for col in icols2[3:6]
         ]),
     ]
     return pie_charts
@@ -294,6 +295,8 @@ def get_filtered_data_store(raw_data_store, start_date: datetime = None, end_dat
         completions = get_completions(imaging)
         imaging_overview = roll_up(imaging)
         indicated_received = get_indicated_received(imaging)
+        ratings = indicated_received.merge(qc, how='outer', left_on = ['Site','Subject','Visit','Scan'], right_on=['site','sub','ses','scan']).fillna('N/A')
+
         stacked_bar_df = get_stacked_bar_data(qc, 'sub', 'rating', ['site','ses'])
         sites = list(imaging.site.unique())
 
@@ -303,6 +306,7 @@ def get_filtered_data_store(raw_data_store, start_date: datetime = None, end_dat
         'sites': sites,
         'completions': completions.to_dict('records'),
         'imaging_overview' : imaging_overview.to_dict('records'),
+        'ratings' : ratings.to_dict('records'),
         'indicated_received' : indicated_received.to_dict('records'),
     }
 
@@ -340,17 +344,21 @@ def serve_raw_data_store(url_data_path, local_data_path, source):
         dcc.Store(id='filtered_data'),
         # html.P('Imaging Source: ' + data_dictionary['imaging_source']),
         # html.P('QC Source: ' + data_dictionary['qc_source']),
-        create_content(sites)
+        create_content(source, sites)
     ])
     return data_stores
 
 
 
-def create_content(sites):
+def create_content(source, sites):
+    if source == 'local':
+        source_msg = 'Data loaded from local files dated ' + LOCAL_DATA_DATE
+    else:
+        source_msg = 'Data from API'
     if len(sites) > 0:
         content = html.Div([
                     html.Div([
-                        dbc.Row(id='test-row'),
+                        dbc.Row(id='content'),
                         dbc.Row([
                             dbc.Col([
                                 html.H1('Imaging Report', style={'textAlign': 'center'})
@@ -359,7 +367,9 @@ def create_content(sites):
                         dbc.Row([
                             dbc.Col([
                                 html.P(date.today().strftime('%B %d, %Y')),
-                                html.P(version_msg)],
+                                html.P(version_msg),
+                                html.P(source_msg)
+                                ],
                             width=10),
                             dbc.Col([
                                 # offcanvas
@@ -380,7 +390,7 @@ def create_content(sites):
 
                         dbc.Row([
                             dbc.Col([
-                                dbc.Tabs(id="tabs", active_tab='tab-overview', children=[
+                                dbc.Tabs(id="tabs", active_tab='tab-pie', children=[
                                     dbc.Tab(label='Overview', tab_id='tab-overview'),
                                     dbc.Tab(label='Discrepancies', tab_id='tab-discrepancies'),
                                     dbc.Tab(label='Completions', tab_id='tab-completions'),
@@ -392,7 +402,7 @@ def create_content(sites):
                             dbc.Col([
                                 dcc.Dropdown(
                                     id='dropdown-sites',
-                                    options=[
+                                    options=[  #'UI', 'UC', 'NS', 'N/A', 'UM', 'WS'
                                         {'label': 'All Sites', 'value': (',').join(sites)},
                                         {'label': 'MCC1', 'value': 'UI,UC,NS'},
                                         {'label': 'MCC2', 'value': 'UM,WS,SH' },
@@ -694,13 +704,28 @@ def update_image_report(sites, data):
 @app.callback(
     Output('pie_charts', 'children'),
     Input('dropdown-sites', 'value'),
-    State('filtered_data', 'data')
+    Input('filtered_data', 'data')
 )
-def update_pie(sites, data):
-    imaging = pd.DataFrame.from_dict(data['imaging'])
-    df = imaging[imaging['site'].isin(sites.split(","))]
-    completions = get_completions(df)
-    return create_pie_charts(completions)
+def update_pie(sites, filtered_data):
+    # imaging = pd.DataFrame.from_dict(data['imaging'])
+    # df = imaging[imaging['site'].isin(sites.split(","))]
+    # completions = get_completions(df)
+    # return create_pie_charts(completions)
+
+    ratings = pd.DataFrame.from_dict(filtered_data['ratings'])
+    r2 = pd.DataFrame(ratings.groupby(['Site', 'Scan'])['rating'].value_counts())
+    r2.columns = ['Count']
+    r2.reset_index(inplace=True)
+    r2.rating = pd.Categorical(r2.rating,
+                          categories=["green","yellow","red","N/A"],
+                          ordered=True)
+    r2.sort_values('rating', inplace=True)
+    pie_df = r2[r2['Site'].isin(sites.split(","))]
+
+    return create_pie_charts(pie_df)
+    # pie_div = html.Div(dcc.Graph(figure=fig))
+    # pie_div = html.Div('pies go here')
+    # return pie_div
 
 @app.callback(
     Output('heatmap', 'children'),
