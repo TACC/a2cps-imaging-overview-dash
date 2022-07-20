@@ -20,7 +20,7 @@ from styling import *
 
 def make_pie_chart(pie_df, facet_col='Scan', facet_row=None):
     fig = px.pie(pie_df, values='BIDS', names='rating', color='rating',
-                     facet_col = facet_col, facet_row = facet_row, title=title
+                     facet_col = facet_col, facet_row = facet_row, 
                      color_discrete_map={'green':'ForestGreen',
                                  'yellow':'Gold',
                                  'red':'FireBrick',
