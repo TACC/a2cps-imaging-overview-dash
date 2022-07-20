@@ -18,31 +18,28 @@ from styling import *
 # CUSTOM FUNCTIONS FOR DASH UI COMPONENTS
 # ----------------------------------------------------------------------------
 
-def pie_scan(df, value_col, scan):
-    # fig = px.pie(df, values=value_col, names=col, title=col,
-    #      color_discrete_sequence=['SteelBlue','lightgrey']
-    #     )
-    # fig.update_traces(textposition='inside', textinfo='percent+label')
-    # fig.update_layout(showlegend=False)
-    pie_df = df[df['Scan']==scan]
-    fig = px.pie(pie_df, values=value_col, names='rating', title=scan, # color = 'rating',
-        color_discrete_sequence=['#47B39C','#FFC154','#EC6B56','lightgrey'],
-         color_discrete_map={'green':'#47B39C',
-                 'yellow':'#FFC154',
-                 'red':'#EC6B56',
-                 'N/A':'grey'}
-                )
-    fig.update_traces(textposition='inside', textinfo='percent+label')
-    fig.update_layout(showlegend=False, legend={'orientation':'h'})
+def make_pie_chart(pie_df, facet_col='Scan', facet_row=None):
+    fig = px.pie(pie_df, values='BIDS', names='rating', color='rating',
+                     facet_col = facet_col, facet_row = facet_row, title=title
+                     color_discrete_map={'green':'ForestGreen',
+                                 'yellow':'Gold',
+                                 'red':'FireBrick',
+                                 'N/A':'grey'},
+                     category_orders={"Scan": ["T1", "REST1", "CUFF1", "CUFF2", "REST2", 'DWI'],
+                                      "site": ["UI", "UC",'NS', 'UM','WS','SH','N/A']}
+            )
+    fig.update_traces(textinfo='percent', hoverinfo='value')
+
+    if facet_col:
+        fig.for_each_annotation(lambda a: a.update(text=a.text.replace(facet_col +"=", "")))
+
+    if facet_row:
+        fig.for_each_annotation(lambda a: a.update(text=a.text.replace(facet_row +"=", "")))
+    fig.update_layout(showlegend=False)
+    fig.update_traces(sort=False)
 
     return fig
 
-def build_pie_col(df, scan):
-    figure_id = 'pie_' + scan
-    pie_col = dbc.Col([
-        dcc.Graph(figure = pie_scan(df, 'Count', scan), id = figure_id)
-    ], width = 4)
-    return pie_col
 
 def bar_chart_dataframe(df, mcc_dict, count_col, x_col, color_col = None, facet_col = None, facet_row = None, chart_type='Count'):
     # Get grouping cols for stacked bar

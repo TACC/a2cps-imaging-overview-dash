@@ -40,6 +40,9 @@ def load_qc(url_data_path, local_data_path, source='url'):
         except:
             qc = pd.DataFrame()
             qc_source = 'unavailable'
+    if 'scan' in qc.columns:
+        # Change scan name in qc file to match imaging file
+        qc.loc[qc['scan'] == 'T1w', 'scan']  = 'T1'
     return qc, qc_source
 
 # ----------------------------------------------------------------------------
@@ -66,6 +69,10 @@ def filter_qc(qc, filtered_imaging):
     filt_sub.columns = ['sub','ses']
     filtered_qc = qc.merge(filt_sub, how = 'left',on = ['sub','ses'])
     return filtered_qc
+
+# ----------------------------------------------------------------------------
+# Discrepancies Analysis
+# ----------------------------------------------------------------------------
 
 # ----------------------------------------------------------------------------
 # Discrepancies Analysis
@@ -109,7 +116,7 @@ def get_indicated_received(imaging_dataframe, validation_column = 'bids_validati
        '1st Resting State Received',
        '2nd Resting State Received']
 
-    scan_cols_short = ['T1w','DWI','CUFF1','CUFF2','REST1','REST2']
+    scan_cols_short = ['T1','DWI','CUFF1','CUFF2','REST1','REST2']
 
     indicated = df[index_cols + indicated_cols]
     indicated.columns = index_cols + scan_cols_short
@@ -224,8 +231,8 @@ def get_heat_matrix_df(qc, site, color_mapping_list):
         q3 = q2.sort_values(['sub','ses','scan']).drop_duplicates(['sub','ses','scan'],keep='last')
         q3['Scan'] = q3['ses'] + '-' + q3['scan']
         q3_matrix = q3.pivot(index='sub', columns = 'Scan', values = 'value').fillna(0)
-        q3_matrix_cols = ['V1-T1w', 'V1-CUFF1', 'V1-CUFF2', 'V1-REST1', 'V1-REST2',
-                 'V3-T1w', 'V3-CUFF1', 'V3-CUFF2', 'V3-REST1', 'V3-REST2']
+        q3_matrix_cols = ['V1-T1', 'V1-CUFF1', 'V1-CUFF2', 'V1-REST1', 'V1-REST2',
+                 'V3-T1', 'V3-CUFF1', 'V3-CUFF2', 'V3-REST1', 'V3-REST2']
         matrix_df = q3_matrix[q3_matrix_cols]
         matrix_df.insert(5, "", [0.1] * len(matrix_df))
         matrix_df.columns.name = None
