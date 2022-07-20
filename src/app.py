@@ -21,6 +21,7 @@ bar_chart_options = {'None':'None', 'MCC':'mcc', 'Site':'site','Visit':'ses','Sc
 
 # Set Version date
 version_msg = 'Version Date: 07/13/22'
+LOCAL_DATA_DATE = '07/19/2022'
 
 # Load local / asset data
 sites_filepath = os.path.join(DATA_PATH,'sites.csv')
@@ -44,7 +45,7 @@ mcc_dict = {'mcc': [1,1,1,2,2,2],
 
 scan_dict = {
     'DWI Received':'DWI',
-    'T1 Received':'T1w',   
+    'T1 Received':'T1',
    '1st Resting State Received':'REST1',
    'fMRI Individualized Pressure Received':'CUFF1',
    'fMRI Standard Pressure Received':'CUFF2',
@@ -199,20 +200,6 @@ def completions_div(completions_cols, completions_data, imaging):
     ]
     return completions_div
 
-def create_pie_charts(ratings_rolled_up):
-    pie_charts = [
-
-        dbc.Row([dbc.Col([
-            html.H3('Percent of returns by Scan type')
-        ])]),
-        dbc.Row([
-            build_pie_col(ratings_rolled_up, col) for col in icols2[0:3]
-        ])        ,
-        dbc.Row([
-            build_pie_col(ratings_rolled_up, col) for col in icols2[3:6]
-        ]),
-    ]
-    return pie_charts
 
 def build_boxplot(df):
     fig=go.Figure()
@@ -390,7 +377,7 @@ def create_content(source, sites):
 
                         dbc.Row([
                             dbc.Col([
-                                dbc.Tabs(id="tabs", active_tab='tab-pie', children=[
+                                dbc.Tabs(id="tabs", active_tab='tab-overview', children=[
                                     dbc.Tab(label='Overview', tab_id='tab-overview'),
                                     dbc.Tab(label='Discrepancies', tab_id='tab-discrepancies'),
                                     dbc.Tab(label='Completions', tab_id='tab-completions'),
@@ -484,7 +471,7 @@ def switch_tab(at):
                 ])
             ]),
             dbc.Row([
-                dbc.Col([html.H3('Quality ratings for individual scans (up to six scans per session: T1w, DWI, REST1, CUFF1, CUFF2, REST2)')]),
+                dbc.Col([html.H3('Quality ratings for individual scans (up to six scans per session: T1, DWI, REST1, CUFF1, CUFF2, REST2)')]),
             ]),
             dbc.Row([
                 dbc.Col([
@@ -703,28 +690,42 @@ def update_image_report(sites, data):
 @app.callback(
     Output('pie_charts', 'children'),
     Input('dropdown-sites', 'value'),
-    Input('filtered_data', 'data')
+    Input('filtered_data', 'data'),
+    State('dropdown-sites', 'options')
 )
-def update_pie(sites, filtered_data):
-    # imaging = pd.DataFrame.from_dict(data['imaging'])
-    # df = imaging[imaging['site'].isin(sites.split(","))]
-    # completions = get_completions(df)
-    # return create_pie_charts(completions)
-
+def update_pie(sites, filtered_data, options):
+    sites_list = sites.split(",")
     ratings = pd.DataFrame.from_dict(filtered_data['ratings'])
-    r2 = pd.DataFrame(ratings.groupby(['Site', 'Scan'])['rating'].value_counts())
-    r2.columns = ['Count']
-    r2.reset_index(inplace=True)
-    r2.rating = pd.Categorical(r2.rating,
-                          categories=["green","yellow","red","N/A"],
-                          ordered=True)
-    r2.sort_values('rating', inplace=True)
-    pie_df = r2[r2['Site'].isin(sites.split(","))]
+    site_label = [x['label'] for x in options if x['value'] == sites]
+    pie_df = ratings[ratings['Site'].isin(sites_list)]
 
-    return create_pie_charts(pie_df)
-    # pie_div = html.Div(dcc.Graph(figure=fig))
-    # pie_div = html.Div('pies go here')
-    # return pie_div
+    pie_charts = [
+        dbc.Row([dbc.Col([
+            html.H3('Percent of returns by Scan type'),
+        ])]),
+        dbc.Row([
+            html.H4(site_label),
+            dcc.Graph(id='pie_main', figure=make_pie_chart(pie_df))
+        ])
+    ]
+
+    if len(sites_list) > 1:
+        fig_height = len(sites_list) * 300
+        fig=make_pie_chart(pie_df, facet_row='Site')
+        fig.update_layout(
+            autosize=False,
+            width =1500,
+            height=fig_height)
+
+        add_div =dbc.Row([
+            html.H4('Breakout by Site'),
+            dcc.Graph(id='pie_main', figure=fig)
+        ])
+        pie_charts.append(add_div)
+
+    return pie_charts
+
+
 
 @app.callback(
     Output('heatmap', 'children'),
