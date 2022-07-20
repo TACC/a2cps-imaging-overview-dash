@@ -52,3 +52,4 @@ def get_django_user():
     except Exception as e:
         print(e)
         return None
+
