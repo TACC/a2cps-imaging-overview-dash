@@ -348,7 +348,7 @@ def create_content(source, sites):
                         dbc.Row(id='content'),
                         dbc.Row([
                             dbc.Col([
-                                html.H1('Imaging Overview Report', style={'textAlign': 'center'})
+                                html.H1('Imaging Report', style={'textAlign': 'center'})
                             ])
                             ], justify='center', align='center'),
                         dbc.Row([
@@ -417,7 +417,8 @@ def create_content(source, sites):
             ])
     else:
         content = html.Div([
-            dbc.Alert("There has been a problem accessing the data API at this time. Please try again in a few minutes.", color="warning")
+            dbc.Alert("There has been a problem accessing the data API. Please try again in a few minutes.", color="warning")
+            # dbc.Alert("There has been a problem accessing the data API at this time. Please try again in a few minutes.", color="warning")
         ])
     return content
 
