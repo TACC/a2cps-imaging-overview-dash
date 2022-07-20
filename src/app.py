@@ -463,7 +463,10 @@ def see_filtering(filtered_data):
     Input("tabs", "active_tab"))
 def switch_tab(at):
     if at == "tab-overview":
-        overview = html.Div([
+        overview = dcc.Loading(
+                    id="loading-overview",
+                    children=[
+                        html.Div([
             dbc.Row([
                 dbc.Col([
                     html.H3('Scan sessions for pre-surgery (V1) and 3 month post surgery (V3) visits'),
@@ -508,32 +511,59 @@ def switch_tab(at):
                     ],width=2),
                 ]),
         ])
+                    ],
+                    type="circle",
+                )
         style = {'display': 'none'}
         return overview, style
     elif at == "tab-discrepancies":
-        discrepancies = html.Div([
+        discrepancies = dcc.Loading(
+                    id="loading-discrepancies",
+                    children=[
+                        html.Div([
             dbc.Row([
                 dbc.Col([html.Div(id='discrepancies_section')])
             ]),
         ])
+                    ],
+                    type="circle",
+                )
         return discrepancies, {'display': 'block'}
     elif at == "tab-completions":
-        completions = html.Div([
-                html.Div(id='completions_section')
-            ])
+        completions = dcc.Loading(
+                    id="loading-completions",
+                    children=[
+                        html.Div([
+                            html.Div(id='completions_section')
+                        ])
+                    ],
+                    type="circle",
+                )
         return completions, {'display': 'block'}
     elif at == "tab-pie":
-        pies = html.Div(id='pie_charts')
+        pies = dcc.Loading(
+                    id="loading-pie",
+                    children=[
+                        html.Div(id='pie_charts')
+                        ],
+                    type="circle",
+                )
         return pies, {'display': 'block'}
     elif at == "tab-heatmap":
         heatmap = html.Div(id='heatmap')
         return heatmap, {'display': 'block'}
     elif at == "tab-cuff":
-        cuff = html.Div([
-            dbc.Row([
-                dbc.Col([html.Div(id='cuff_section')])
-            ]),
-        ])
+        cuff = dcc.Loading(
+                    id="loading-heatmap",
+                    children=[
+                        html.Div([
+                            dbc.Row([
+                                dbc.Col([html.Div(id='cuff_section')])
+                            ]),
+                        ])
+                    ],
+                type="circle",
+            )
         return cuff, {'display': 'block'}
 
     return html.P("This shouldn't ever be displayed...")
