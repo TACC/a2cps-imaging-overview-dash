@@ -18,7 +18,7 @@ from config_settings import *
 # ----------------------------------------------------------------------------
 def load_imaging(url_data_path, local_data_path, source='url'):
     if source == 'local':
-        imaging = pd.read_csv(os.path.join(local_data_path,'imaging_log.csv'))
+        imaging = pd.read_csv(os.path.join(local_data_path,'imaging-log-latest.csv'))
         imaging_source = 'local'
     else:
         try:
@@ -31,7 +31,7 @@ def load_imaging(url_data_path, local_data_path, source='url'):
 
 def load_qc(url_data_path, local_data_path, source='url'):
     if source == 'local':
-        qc = pd.read_csv(os.path.join(local_data_path,'qc_log.csv'))
+        qc = pd.read_csv(os.path.join(local_data_path,'qc-log-latest.csv'))
         qc_source = 'local'
     else:
         try:
@@ -40,52 +40,114 @@ def load_qc(url_data_path, local_data_path, source='url'):
         except:
             qc = pd.DataFrame()
             qc_source = 'unavailable'
+    if 'scan' in qc.columns:
+        # Change scan name in qc file to match imaging file
+        qc.loc[qc['scan'] == 'T1w', 'scan']  = 'T1'
     return qc, qc_source
+
+# ----------------------------------------------------------------------------
+# Filter by date
+# ----------------------------------------------------------------------------
+def filter_imaging(imaging_df, start_date: datetime = None, end_date = None):
+    '''Filter the imaging datatable using:
+    start_date: select imaging records acquired on or after this date
+    end_date: select imaging records acquired on or before this date'''
+    filtered_imaging = imaging_df.copy()
+    filtered_imaging['acquisition_week']= pd.to_datetime(filtered_imaging['acquisition_week'], errors = 'coerce')
+
+    if start_date and isinstance(start_date, datetime):
+        filtered_imaging = filtered_imaging[filtered_imaging['acquisition_week'] >= start_date]
+
+    if end_date and isinstance(end_date, datetime):
+        filtered_imaging = filtered_imaging[filtered_imaging['acquisition_week'] <= end_date]
+
+    return filtered_imaging
+
+def filter_qc(qc, filtered_imaging):
+    '''Filter qx records to just those subjects / visits in the filtered imaging set'''
+    filt_sub = filtered_imaging[['subject_id','visit']]
+    filt_sub.columns = ['sub','ses']
+    filtered_qc = qc.merge(filt_sub, how = 'left',on = ['sub','ses'])
+    return filtered_qc
 
 # ----------------------------------------------------------------------------
 # Discrepancies Analysis
 # ----------------------------------------------------------------------------
 
-def get_indicated_received_discrepancy(imaging_dataframe, validation_column = 'bids_validation', validation_value = 1):
-    """The get_indicated_received_discrepancy(imaging_dataframe) function takes the imaging log data frame and lengthens the
-    table to convert the scan into a variable while preserving columns for the indicated and received value of each scan."""
+# ----------------------------------------------------------------------------
+# Discrepancies Analysis
+# ----------------------------------------------------------------------------
+
+def calculate_overdue(BIDS, visit, surgery_week):
+    today = datetime.now().date()
+    if surgery_week is pd.NaT:
+        overdue='No Surgery Date'
+    elif BIDS == 0 and visit == 'V1' and surgery_week < today:
+        overdue = 'Yes'
+    elif BIDS == 0 and visit == 'V3' and  (today-surgery_week).days > 90:
+        overdue = 'Yes'
+    else:
+        overdue='No'
+    return overdue
+
+def get_indicated_received(imaging_dataframe, validation_column = 'bids_validation', validation_value = 1):
+    """The get_indicated_received(imaging_dataframe) function takes the imaging log data frame and lengthens the
+    table to convert the scan into a variable while preserving columns for the indicated and received value of each scan.
+    Validation columns parameter should be a lits of tuples where the first tuple value is the column name and the
+    second entry is the value of 'Y' for that column"""
     df = imaging_dataframe.copy()
-    # if validation_column is not None, filter dataframe to only those rows where the validation columns == validation value
-    if validation_column is not None:
-        df = df[df[validation_column]==validation_value]
 
     # Select columns, and create long dataframes from those columns, pivoting the scan into a variable
     # Select and pivot indicated columns
-    indicated_cols = ['site','subject_id','visit','T1 Indicated',
+    index_cols = ['site','subject_id','visit','acquisition_week','Surgery Week','bids_validation', 'dicom']
+    index_new = ['Site', 'Subject', 'Visit','Acquisition Week','Surgery Week', 'BIDS','DICOM']
+
+    indicated_cols = ['T1 Indicated',
            'DWI Indicated',
            'fMRI Individualized Pressure Indicated',
            'fMRI Standard Pressure Indicated',
            '1st Resting State Indicated',
            '2nd Resting State Indicated']
 
-    indicated = df[indicated_cols]
-    indicated.columns = ['site','subject_id','visit','T1w','DWI','CUFF1','CUFF2','REST1','REST2']
-    indicated = pd.melt(indicated, id_vars=['site','subject_id','visit'], value_vars = ['T1w','DWI','CUFF1','CUFF2','REST1','REST2'])
-    indicated.columns = ['Site', 'Subject', 'Visit', 'Scan', 'Value']
-
-    # Select and pivot received_cols columns
-    received_cols = ['site','subject_id','visit','T1 Received',
+    received_cols = ['T1 Received',
        'DWI Received',
        'fMRI Individualized Pressure Received',
        'fMRI Standard Pressure Received',
        '1st Resting State Received',
        '2nd Resting State Received']
 
-    received = df[received_cols]
-    received.columns = ['site','subject_id','visit','T1w','DWI','CUFF1','CUFF2','REST1','REST2']
-    received = pd.melt(received, id_vars=['site','subject_id','visit'], value_vars = ['T1w','DWI','CUFF1','CUFF2','REST1','REST2'])
-    received.columns = ['Site', 'Subject', 'Visit', 'Scan', 'Value']
+    scan_cols_short = ['T1','DWI','CUFF1','CUFF2','REST1','REST2']
+
+    indicated = df[index_cols + indicated_cols]
+    indicated.columns = index_cols + scan_cols_short
+    indicated = pd.melt(indicated, id_vars=index_cols, value_vars = scan_cols_short)
+    indicated.columns = index_new + ['Scan', 'Value']
+
+    # Select and pivot received_cols columns
+    received_cols = ['T1 Received',
+       'DWI Received',
+       'fMRI Individualized Pressure Received',
+       'fMRI Standard Pressure Received',
+       '1st Resting State Received',
+       '2nd Resting State Received']
+
+    received = df[index_cols + received_cols]
+    received.columns = index_cols + scan_cols_short
+    received = pd.melt(received, id_vars=index_cols, value_vars = scan_cols_short)
+    received.columns = index_new + ['Scan', 'Value']
 
     # Merge the indicated and received dataframes into a single dataframe
-    combined = pd.merge(indicated, received, how='outer', on=['Site', 'Subject', 'Visit', 'Scan'])
-    combined.columns = ['Site', 'Subject', 'Visit', 'Scan','Indicated','Received']
+    merge_on = index_new + ['Scan']
+    combined = pd.merge(indicated, received, how='outer', on=index_new + ['Scan'] )
+    combined.columns = index_new + ['Scan','Indicated','Received']
+
+    # Convert columns to dates and calculate if overdue
+    combined['Surgery Week'] = pd.to_datetime(combined['Surgery Week'], errors='coerce').dt.date
+    combined['Acquisition Week'] = pd.to_datetime(combined['Acquisition Week'], errors='coerce').dt.date
+    combined['Overdue'] = combined.apply(lambda x: calculate_overdue(x['BIDS'], x['Visit'], x['Surgery Week']), axis=1)
 
     return combined
+
 
 
 # ----------------------------------------------------------------------------
@@ -169,8 +231,8 @@ def get_heat_matrix_df(qc, site, color_mapping_list):
         q3 = q2.sort_values(['sub','ses','scan']).drop_duplicates(['sub','ses','scan'],keep='last')
         q3['Scan'] = q3['ses'] + '-' + q3['scan']
         q3_matrix = q3.pivot(index='sub', columns = 'Scan', values = 'value').fillna(0)
-        q3_matrix_cols = ['V1-T1w', 'V1-CUFF1', 'V1-CUFF2', 'V1-REST1', 'V1-REST2',
-                 'V3-T1w', 'V3-CUFF1', 'V3-CUFF2', 'V3-REST1', 'V3-REST2']
+        q3_matrix_cols = ['V1-T1', 'V1-CUFF1', 'V1-CUFF2', 'V1-REST1', 'V1-REST2',
+                 'V3-T1', 'V3-CUFF1', 'V3-CUFF2', 'V3-REST1', 'V3-REST2']
         matrix_df = q3_matrix[q3_matrix_cols]
         matrix_df.insert(5, "", [0.1] * len(matrix_df))
         matrix_df.columns.name = None
